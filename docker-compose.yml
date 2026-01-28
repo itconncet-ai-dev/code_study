@@ -1,0 +1,69 @@
+# Docker Compose configuration for AI Code Learning Platform
+# PostgreSQL 15+ (database) and Redis (message broker/cache)
+#
+# Usage:
+#   docker-compose up -d          # Start services in background
+#   docker-compose down           # Stop and remove containers
+#   docker-compose logs -f        # View logs
+#   docker-compose ps             # Check running services
+#
+# Services:
+#   - postgres: PostgreSQL 15 database (JSONB support for documents)
+#   - redis: Redis 7 for Celery broker and caching
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: code_learning_postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-code_learning}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-code_learning_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-code_learning_db}
+      # Performance tuning for development
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      # Persist database data
+      - postgres_data:/var/lib/postgresql/data
+      # Optional: initialization scripts
+      - ./backend/scripts/init-db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-code_learning} -d ${POSTGRES_DB:-code_learning_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - code_learning_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: code_learning_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      # Persist Redis data (AOF for durability)
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - code_learning_network
+
+networks:
+  code_learning_network:
+    driver: bridge
+    name: code_learning_network
+
+volumes:
+  postgres_data:
+    name: code_learning_postgres_data
+  redis_data:
+    name: code_learning_redis_data
