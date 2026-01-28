@@ -147,7 +147,7 @@ class TestCeleryAppConfiguration:
         assert celery_app is not None
         assert celery_app.main == "code_learning_tasks"
 
-    def test_celery_app_broker_configured(self, _celery_app):
+    def test_celery_app_broker_configured(self, celery_app):  # noqa: ARG002
         """Test Celery app has broker URL configured."""
         settings = get_celery_settings()
         # The broker URL should contain redis://
