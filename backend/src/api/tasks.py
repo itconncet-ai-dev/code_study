@@ -15,6 +15,7 @@ Reference: api-spec.yaml §Task endpoints
 Tasks: T070-T075 - Task API implementation
 """
 
+import logging
 from datetime import datetime
 from typing import Annotated
 from uuid import UUID
@@ -22,8 +23,6 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
-
-import logging
 
 from src.api.dependencies import CurrentUser
 from src.api.exceptions import ValidationError
@@ -545,9 +544,10 @@ async def create_task(
     if upload_method:
         try:
             from src.services.document.document_queue_service import (
-                DocumentQueueService,
                 AlreadyInQueueError,
+                DocumentQueueService,
             )
+
             queue_service = DocumentQueueService()
             celery_task_id = await queue_service.queue_generation(task.id, db)
             logger.info(

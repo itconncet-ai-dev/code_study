@@ -21,8 +21,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
-    from src.models.user import User
     from src.models.task import Task
+    from src.models.user import User
 
 
 class Project(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
@@ -86,14 +86,14 @@ class Project(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     # Relationships
-    user: Mapped["User"] = relationship(
+    user: Mapped[User] = relationship(
         "User",
         back_populates="projects",
         lazy="selectin",
     )
 
     # Tasks relationship - added in T061 when Task model was created
-    tasks: Mapped[list["Task"]] = relationship(
+    tasks: Mapped[list[Task]] = relationship(
         "Task",
         back_populates="project",
         cascade="all, delete-orphan",

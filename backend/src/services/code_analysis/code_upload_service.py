@@ -125,8 +125,7 @@ class CodeUploadService:
 
         # Analyze complexity
         file_contents = [
-            (name, content.decode("utf-8", errors="ignore"))
-            for name, content in files
+            (name, content.decode("utf-8", errors="ignore")) for name, content in files
         ]
         complexity_result = ComplexityAnalyzer.analyze_files(file_contents)
 
@@ -238,8 +237,7 @@ class CodeUploadService:
 
         # Analyze complexity
         file_contents = [
-            (path, content.decode("utf-8", errors="ignore"))
-            for path, content in files
+            (path, content.decode("utf-8", errors="ignore")) for path, content in files
         ]
         complexity_result = ComplexityAnalyzer.analyze_files(file_contents)
 

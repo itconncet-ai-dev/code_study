@@ -5,7 +5,7 @@ Straightforward tests for database connection and basic operations.
 """
 
 import pytest
-from sqlalchemy import select, func, text
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -47,7 +47,9 @@ class TestDatabaseIntegration:
     @pytest.mark.asyncio
     async def test_05_cast_operations(self, db_session: AsyncSession):
         """Test type casting."""
-        result = await db_session.execute(select(func.cast(func.literal("123"), type_=int)))
+        result = await db_session.execute(
+            select(func.cast(func.literal("123"), type_=int))
+        )
         value = result.scalar()
         assert value == 123
         print(f"[OK] Cast string to int: '123' = {value}")
@@ -56,11 +58,7 @@ class TestDatabaseIntegration:
     async def test_06_multiple_columns(self, db_session: AsyncSession):
         """Test selecting multiple columns."""
         result = await db_session.execute(
-            select(
-                func.literal("col1"),
-                func.literal("col2"),
-                func.literal(42)
-            )
+            select(func.literal("col1"), func.literal("col2"), func.literal(42))
         )
         row = result.tuple()
         assert row == ("col1", "col2", 42)
@@ -69,9 +67,10 @@ class TestDatabaseIntegration:
     @pytest.mark.asyncio
     async def test_07_aggregate_function(self, db_session: AsyncSession):
         """Test aggregate functions."""
-        from sqlalchemy import literal
         # Create a VALUES clause to test aggregation
-        result = await db_session.execute(text("SELECT COUNT(*) FROM (VALUES (1), (2), (3)) AS t(n)"))
+        result = await db_session.execute(
+            text("SELECT COUNT(*) FROM (VALUES (1), (2), (3)) AS t(n)")
+        )
         count = result.scalar()
         assert count == 3
         print(f"[OK] COUNT aggregate: {count}")
@@ -90,10 +89,8 @@ class TestDatabaseIntegration:
     async def test_09_case_expression(self, db_session: AsyncSession):
         """Test CASE expression."""
         from sqlalchemy import case
-        expr = case(
-            (func.literal(1) == 1, "one"),
-            else_="other"
-        )
+
+        expr = case((func.literal(1) == 1, "one"), else_="other")
         result = await db_session.execute(select(expr))
         value = result.scalar()
         assert value == "one"

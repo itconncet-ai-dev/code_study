@@ -27,7 +27,7 @@ Task: T025 - Implement UserService (register, login, logout)
 """
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -41,11 +41,8 @@ from src.api.exceptions import (
 from src.models.user import User
 from src.utils.security import hash_password, verify_password
 
-
 # Email validation regex per RFC 5322 simplified
-EMAIL_REGEX = re.compile(
-    r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-)
+EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
 # Minimum password length per api-spec.yaml
 MIN_PASSWORD_LENGTH = 8
@@ -165,18 +162,14 @@ class UserService:
         # Find user by email
         user = await self.get_by_email(email)
         if user is None:
-            raise InvalidCredentialsError(
-                detail="Invalid email or password"
-            )
+            raise InvalidCredentialsError(detail="Invalid email or password")
 
         # Verify password
         if not verify_password(password, user.password_hash):
-            raise InvalidCredentialsError(
-                detail="Invalid email or password"
-            )
+            raise InvalidCredentialsError(detail="Invalid email or password")
 
         # Update last login timestamp
-        user.last_login_at = datetime.now(timezone.utc)
+        user.last_login_at = datetime.now(UTC)
         await self.db.commit()
 
         return user

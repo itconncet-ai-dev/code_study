@@ -48,9 +48,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             )}
           </div>
           {project.description && (
-            <CardDescription className="mt-2 line-clamp-2">
-              {project.description}
-            </CardDescription>
+            <CardDescription className="mt-2 line-clamp-2">{project.description}</CardDescription>
           )}
         </CardHeader>
 

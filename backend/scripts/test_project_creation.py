@@ -19,9 +19,9 @@ os.chdir(backend_dir)
 
 # Set UTF-8 encoding for Windows console
 if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding="utf-8")
 
-from datetime import datetime, timedelta
+from datetime import datetime  # noqa: E402
 
 
 async def main():
@@ -38,7 +38,9 @@ async def main():
         print("\n[1] 테스트 사용자 생성...")
         user_service = UserService(session)
 
-        test_email = f"test_project_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        test_email = (
+            f"test_project_{datetime.now().strftime('%Y%m%d%H%M%S')}@example.com"
+        )
         test_password = "SecurePass123!"
 
         try:
@@ -61,11 +63,9 @@ async def main():
 
         try:
             project = await project_service.create(
-                user_id=user.id,
-                title=title_with_spaces,
-                description=description
+                user_id=user.id, title=title_with_spaces, description=description
             )
-            print(f"    [OK] 프로젝트 생성 완료")
+            print("    [OK] 프로젝트 생성 완료")
             print(f"    - ID: {project.id}")
         except Exception as e:
             print(f"    [FAIL] 프로젝트 생성 실패: {e}")
@@ -76,19 +76,19 @@ async def main():
         print("-" * 60)
 
         # 3-1. 공백 제거 확인
-        print(f"\n    [CHECK] 제목 공백 처리:")
+        print("\n    [CHECK] 제목 공백 처리:")
         print(f"       입력값: '{title_with_spaces}' (길이: {len(title_with_spaces)})")
         print(f"       저장값: '{project.title}' (길이: {len(project.title)})")
 
         if project.title == title_with_spaces:
-            print(f"       [WARN] 공백이 제거되지 않음 (원본 그대로 저장)")
+            print("       [WARN] 공백이 제거되지 않음 (원본 그대로 저장)")
         elif project.title == title_with_spaces.strip():
-            print(f"       [OK] 공백이 제거됨 (strip 적용)")
+            print("       [OK] 공백이 제거됨 (strip 적용)")
         else:
-            print(f"       [?] 예상치 못한 결과")
+            print("       [?] 예상치 못한 결과")
 
         # 3-2. 타임스탬프 확인
-        print(f"\n    [CHECK] 타임스탬프:")
+        print("\n    [CHECK] 타임스탬프:")
         print(f"       created_at:       {project.created_at}")
         print(f"       updated_at:       {project.updated_at}")
         print(f"       last_activity_at: {project.last_activity_at}")
@@ -109,23 +109,23 @@ async def main():
                 print(f"       [WARN] created_at과 last_activity_at 차이: {diff2}초")
 
         if timestamps_match:
-            print(f"       [OK] 모든 타임스탬프가 동일 (1초 이내)")
+            print("       [OK] 모든 타임스탬프가 동일 (1초 이내)")
 
         # 3-3. deletion_status 확인
-        print(f"\n    [CHECK] 삭제 상태:")
+        print("\n    [CHECK] 삭제 상태:")
         print(f"       deletion_status: '{project.deletion_status}'")
         print(f"       trashed_at: {project.trashed_at}")
         print(f"       scheduled_deletion_at: {project.scheduled_deletion_at}")
 
         if project.deletion_status == "active":
-            print(f"       [OK] deletion_status가 'active'임")
+            print("       [OK] deletion_status가 'active'임")
         else:
-            print(f"       [FAIL] deletion_status가 'active'가 아님!")
+            print("       [FAIL] deletion_status가 'active'가 아님!")
 
         if project.trashed_at is None and project.scheduled_deletion_at is None:
-            print(f"       [OK] 휴지통 관련 필드가 None임")
+            print("       [OK] 휴지통 관련 필드가 None임")
         else:
-            print(f"       [WARN] 휴지통 관련 필드에 값이 있음!")
+            print("       [WARN] 휴지통 관련 필드에 값이 있음!")
 
         # 4. 요약
         print("\n" + "=" * 60)
@@ -144,11 +144,11 @@ async def main():
             issues.append("deletion_status가 active가 아님")
 
         if issues:
-            print(f"\n[WARN] 발견된 이슈:")
+            print("\n[WARN] 발견된 이슈:")
             for issue in issues:
                 print(f"   - {issue}")
         else:
-            print(f"\n[OK] 모든 검증 통과!")
+            print("\n[OK] 모든 검증 통과!")
 
         print()
 

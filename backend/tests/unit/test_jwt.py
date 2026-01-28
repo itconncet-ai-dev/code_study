@@ -9,15 +9,12 @@ Tests cover:
 - Error cases and edge cases
 """
 
-import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
-
 from backend.src.utils.jwt import (
     JWTSettings,
-    TokenExpiredError,
     TokenInvalidError,
     TokenPayload,
     TokenType,
@@ -320,7 +317,7 @@ class TestTokenDecoding:
         expiration = get_token_expiration(token, settings=jwt_settings)
 
         assert isinstance(expiration, datetime)
-        assert expiration > datetime.now(timezone.utc)
+        assert expiration > datetime.now(UTC)
 
 
 class TestTokenPayloadModel:
@@ -328,7 +325,7 @@ class TestTokenPayloadModel:
 
     def test_token_payload_validation(self):
         """Test TokenPayload model validation."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = TokenPayload(
             sub="user-123",
             type=TokenType.ACCESS,
@@ -342,7 +339,7 @@ class TestTokenPayloadModel:
 
     def test_token_payload_with_jti(self):
         """Test TokenPayload with JTI."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         jti = str(uuid4())
         payload = TokenPayload(
             sub="user-123",

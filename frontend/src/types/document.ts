@@ -131,11 +131,7 @@ export interface LearningDocumentContent {
 /**
  * Generation status for async document generation
  */
-export type DocumentGenerationStatus =
-  | 'pending'
-  | 'in_progress'
-  | 'completed'
-  | 'failed'
+export type DocumentGenerationStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
 
 /**
  * Learning document entity with generation metadata
@@ -166,7 +162,7 @@ export interface DocumentStatusResponse {
 /**
  * Get document response from API
  */
-export interface GetDocumentResponse extends LearningDocument {}
+export type GetDocumentResponse = LearningDocument
 
 /**
  * Chapter identifier (1-7)

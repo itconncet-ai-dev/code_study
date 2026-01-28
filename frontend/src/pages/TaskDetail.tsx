@@ -12,7 +12,8 @@ import type { ChapterNumber } from '@/types/document'
 type TabType = 'document' | 'practice' | 'qa'
 
 export default function TaskDetail() {
-  const { taskId } = useParams<{ taskId: string }>()
+  const { taskId: rawTaskId } = useParams<{ taskId: string }>()
+  const taskId = rawTaskId ?? ''
   const [activeTab, setActiveTab] = useState<TabType>('document')
   const [completedChapters, setCompletedChapters] = useState<ChapterNumber[]>([])
 
@@ -23,27 +24,21 @@ export default function TaskDetail() {
     error: taskError,
   } = useQuery({
     queryKey: ['tasks', taskId],
-    queryFn: () => taskService.getTask(taskId!),
+    queryFn: () => taskService.getTask(taskId),
     enabled: !!taskId,
   })
 
   // Fetch task code
-  const {
-    data: codeData,
-    isLoading: isLoadingCode,
-  } = useQuery({
+  const { data: codeData, isLoading: isLoadingCode } = useQuery({
     queryKey: ['tasks', taskId, 'code'],
-    queryFn: () => taskService.getTaskCode(taskId!),
+    queryFn: () => taskService.getTaskCode(taskId),
     enabled: !!taskId && activeTab === 'document',
   })
 
   // Fetch or poll document status
-  const {
-    data: documentStatus,
-    isLoading: isLoadingDocumentStatus,
-  } = useQuery({
+  const { data: documentStatus, isLoading: isLoadingDocumentStatus } = useQuery({
     queryKey: ['tasks', taskId, 'document', 'status'],
-    queryFn: () => documentService.getDocumentStatus(taskId!),
+    queryFn: () => documentService.getDocumentStatus(taskId),
     enabled: !!taskId && activeTab === 'document',
     refetchInterval: (query) => {
       // Poll every 5 seconds if document is pending or in progress
@@ -56,11 +51,9 @@ export default function TaskDetail() {
   })
 
   // Fetch document when status is completed
-  const {
-    data: document,
-  } = useQuery({
+  const { data: document } = useQuery({
     queryKey: ['tasks', taskId, 'document'],
-    queryFn: () => documentService.getDocument(taskId!),
+    queryFn: () => documentService.getDocument(taskId),
     enabled: !!taskId && documentStatus?.status === 'completed',
   })
 
@@ -111,10 +104,7 @@ export default function TaskDetail() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-4">
-          <Link
-            to={`/projects/${task.project_id}`}
-            className="text-blue-600 hover:underline"
-          >
+          <Link to={`/projects/${task.project_id}`} className="text-blue-600 hover:underline">
             ← 프로젝트로 돌아가기
           </Link>
         </div>
@@ -130,9 +120,7 @@ export default function TaskDetail() {
                   </span>
                 </div>
                 <CardTitle className="text-2xl">{task.title}</CardTitle>
-                {task.description && (
-                  <p className="text-gray-600 mt-2">{task.description}</p>
-                )}
+                {task.description && <p className="text-gray-600 mt-2">{task.description}</p>}
               </div>
             </div>
           </CardHeader>
@@ -187,16 +175,16 @@ export default function TaskDetail() {
 
         {/* Tab Content */}
         {activeTab === 'document' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200" style={{ height: 'calc(100vh - 280px)' }}>
+          <div
+            className="bg-white rounded-lg shadow-sm border border-gray-200"
+            style={{ height: 'calc(100vh - 280px)' }}
+          >
             {isLoadingDocumentStatus || isLoadingCode ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-gray-500">상태 확인 중...</div>
               </div>
             ) : documentStatus?.status === 'failed' ? (
-              <DocumentLoading
-                status="failed"
-                error={documentStatus.error}
-              />
+              <DocumentLoading status="failed" error={documentStatus.error} />
             ) : documentStatus?.status === 'pending' || documentStatus?.status === 'in_progress' ? (
               <DocumentLoading
                 status={documentStatus.status}
@@ -224,9 +212,7 @@ export default function TaskDetail() {
             <CardContent className="pt-6">
               <div className="text-center py-12 text-gray-500">
                 <p className="text-lg font-medium mb-2">실습 기능</p>
-                <p className="text-sm">
-                  실습 환경은 문서 생성 후 이용 가능합니다.
-                </p>
+                <p className="text-sm">실습 환경은 문서 생성 후 이용 가능합니다.</p>
               </div>
             </CardContent>
           </Card>
@@ -237,9 +223,7 @@ export default function TaskDetail() {
             <CardContent className="pt-6">
               <div className="text-center py-12 text-gray-500">
                 <p className="text-lg font-medium mb-2">질문하기</p>
-                <p className="text-sm">
-                  AI에게 코드에 대한 질문을 할 수 있습니다.
-                </p>
+                <p className="text-sm">AI에게 코드에 대한 질문을 할 수 있습니다.</p>
               </div>
             </CardContent>
           </Card>

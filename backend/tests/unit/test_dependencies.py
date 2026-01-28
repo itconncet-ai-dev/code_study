@@ -13,11 +13,10 @@ TDD Phase: RED
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.exceptions import TokenExpiredError, TokenInvalidError, UnauthorizedError
@@ -91,7 +90,7 @@ class TestGetCurrentUser:
         settings = get_jwt_settings()
 
         # Create an expired token
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
             "type": "access",
@@ -222,7 +221,7 @@ class TestGetCurrentUserOptional:
         settings = get_jwt_settings()
 
         # Create an expired token
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
             "type": "access",

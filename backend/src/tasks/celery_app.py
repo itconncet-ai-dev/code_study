@@ -141,7 +141,9 @@ class CelerySettings(BaseSettings):
 
         # Construct from individual Redis settings
         if self.redis_password:
-            return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/1"
+            return (
+                f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/1"
+            )
         return f"redis://{self.redis_host}:{self.redis_port}/1"
 
     @computed_field
@@ -161,7 +163,9 @@ class CelerySettings(BaseSettings):
 
         # Construct from individual Redis settings
         if self.redis_password:
-            return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/2"
+            return (
+                f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/2"
+            )
         return f"redis://{self.redis_host}:{self.redis_port}/2"
 
     @computed_field
@@ -221,7 +225,8 @@ def create_celery_app() -> Celery:
         enable_utc=True,
         # Task execution limits
         task_time_limit=settings.celery_task_time_limit,
-        task_soft_time_limit=settings.celery_task_time_limit - 30,  # Soft limit 30s before hard
+        task_soft_time_limit=settings.celery_task_time_limit
+        - 30,  # Soft limit 30s before hard
         # Result management
         result_expires=settings.celery_result_expires,
         result_extended=True,  # Store additional task metadata
@@ -309,5 +314,9 @@ def health_check(self):
         "status": "healthy",
         "worker_id": self.request.id,
         "environment": settings.app_env,
-        "broker": settings.broker_url.split("@")[-1] if "@" in settings.broker_url else settings.broker_url,
+        "broker": (
+            settings.broker_url.split("@")[-1]
+            if "@" in settings.broker_url
+            else settings.broker_url
+        ),
     }

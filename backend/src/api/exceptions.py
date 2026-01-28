@@ -29,9 +29,9 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-
 
 # =============================================================================
 # Error Codes Enum
@@ -304,7 +304,9 @@ class NotFoundError(APIException):
         elif detail is None and resource:
             detail = f"{resource.capitalize()} not found"
 
-        super().__init__(detail=detail, resource=resource, resource_id=resource_id, **kwargs)
+        super().__init__(
+            detail=detail, resource=resource, resource_id=resource_id, **kwargs
+        )
 
 
 class ConflictError(APIException):
@@ -436,7 +438,10 @@ class FileTooLargeError(APIException):
                 detail += f" (received: {actual_size_mb:.2f}MB)"
 
         super().__init__(
-            detail=detail, max_size_mb=max_size_mb, actual_size_mb=actual_size_mb, **kwargs
+            detail=detail,
+            max_size_mb=max_size_mb,
+            actual_size_mb=actual_size_mb,
+            **kwargs,
         )
 
 
@@ -503,7 +508,9 @@ class RateLimitExceededError(APIException):
         if retry_after:
             headers["Retry-After"] = str(retry_after)
 
-        super().__init__(detail=detail, headers=headers, retry_after=retry_after, **kwargs)
+        super().__init__(
+            detail=detail, headers=headers, retry_after=retry_after, **kwargs
+        )
 
 
 # =============================================================================
@@ -543,7 +550,10 @@ class AIServiceError(APIException):
             detail = f"AI service error. Retrying... (attempt {retry_attempt})"
 
         super().__init__(
-            detail=detail, is_retrying=is_retrying, retry_attempt=retry_attempt, **kwargs
+            detail=detail,
+            is_retrying=is_retrying,
+            retry_attempt=retry_attempt,
+            **kwargs,
         )
 
 
@@ -658,6 +668,7 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
 
     # Log the actual error (import logging when needed)
     import logging
+
     logger = logging.getLogger(__name__)
     logger.error(
         f"Unhandled exception: {type(exc).__name__}: {exc}",
@@ -693,7 +704,6 @@ async def validation_exception_handler(
     Returns:
         JSONResponse with standardized validation error format
     """
-    from fastapi.exceptions import RequestValidationError
 
     context = _get_request_context(request)
 

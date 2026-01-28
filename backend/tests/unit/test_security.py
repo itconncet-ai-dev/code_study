@@ -14,12 +14,12 @@ import pytest
 
 from src.utils.security import (
     PasswordHasher,
+    PasswordHashError,
     PasswordSettings,
+    PasswordVerifyError,
+    get_password_settings,
     hash_password,
     verify_password,
-    get_password_settings,
-    PasswordHashError,
-    PasswordVerifyError,
 )
 
 
@@ -122,9 +122,7 @@ class TestHashPassword:
         with pytest.raises(PasswordHashError):
             hash_password("", settings=password_settings)
 
-    def test_hash_password_none_raises_error(
-        self, password_settings: PasswordSettings
-    ):
+    def test_hash_password_none_raises_error(self, password_settings: PasswordSettings):
         """Test None password raises error."""
         with pytest.raises((PasswordHashError, TypeError)):
             hash_password(None, settings=password_settings)  # type: ignore
@@ -263,18 +261,14 @@ class TestSecurityBestPractices:
         assert verify_password(sample_password, hashed) is True
         assert verify_password("wrong", hashed) is False
 
-    def test_minimum_password_length_allowed(
-        self, password_settings: PasswordSettings
-    ):
+    def test_minimum_password_length_allowed(self, password_settings: PasswordSettings):
         """Test very short passwords can still be hashed (validation is caller's responsibility)."""
         short_password = "a"
         hashed = hash_password(short_password, settings=password_settings)
         assert verify_password(short_password, hashed) is True
 
-    def test_special_characters_in_password(
-        self, password_settings: PasswordSettings
-    ):
+    def test_special_characters_in_password(self, password_settings: PasswordSettings):
         """Test passwords with special characters work correctly."""
-        special_password = "P@$$w0rd!#$%^&*(){}[]|\\:\";<>,.?/~`"
+        special_password = 'P@$$w0rd!#$%^&*(){}[]|\\:";<>,.?/~`'
         hashed = hash_password(special_password, settings=password_settings)
         assert verify_password(special_password, hashed) is True

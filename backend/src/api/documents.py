@@ -25,7 +25,6 @@ from src.api.dependencies import CurrentUser
 from src.api.exceptions import NotFoundError
 from src.db.session import get_db
 from src.services.document.document_generation_service import (
-    DocumentGenerationService,
     get_document_generation_service,
 )
 from src.services.task_service import TaskService
@@ -53,9 +52,7 @@ class LearningDocumentResponse(BaseModel):
         ..., description="Generation status (completed, in_progress, etc.)"
     )
     content: dict[str, Any] = Field(..., description="7-chapter structured content")
-    generated_at: datetime | None = Field(
-        None, description="When generation completed"
-    )
+    generated_at: datetime | None = Field(None, description="When generation completed")
 
     model_config = {"from_attributes": True}
 

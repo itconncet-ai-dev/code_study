@@ -17,10 +17,7 @@ export interface ProtectedRouteProps {
  * Redirects to login page if user is not authenticated.
  * Shows loading state while checking authentication.
  */
-export function ProtectedRoute({
-  children,
-  redirectTo = '/login',
-}: ProtectedRouteProps) {
+export function ProtectedRoute({ children, redirectTo = '/login' }: ProtectedRouteProps) {
   const { isAuthenticated, isInitialized, isLoading } = useAuth()
   const location = useLocation()
 

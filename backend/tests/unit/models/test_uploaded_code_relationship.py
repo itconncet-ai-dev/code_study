@@ -9,18 +9,16 @@ This test verifies that:
 Reference: data-model.md §UploadedCode entity - "One uploaded code per task"
 """
 
-import uuid
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
 
 from src.models.base import Base
-from src.models.user import User
 from src.models.project import Project
 from src.models.task import Task
 from src.models.uploaded_code import UploadedCode
-
+from src.models.user import User
 
 # Test database URL (in-memory SQLite for fast testing)
 TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -310,7 +308,7 @@ def run_manual_test():
             print("  ERROR: Second UploadedCode was created - constraint NOT working!")
         except IntegrityError as e:
             session.rollback()
-            print(f"  SUCCESS: IntegrityError raised as expected!")
+            print("  SUCCESS: IntegrityError raised as expected!")
             print(f"  Error type: {type(e).__name__}")
             print(f"  Error message contains 'UNIQUE': {'unique' in str(e).lower()}")
 

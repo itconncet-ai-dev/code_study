@@ -29,15 +29,15 @@ from src.models.base import (
     UUIDPrimaryKeyMixin,
     model_to_dict,
 )
+from src.models.code_file import CodeFile
+from src.models.learning_document import LearningDocument
+from src.models.project import Project
+from src.models.refresh_token import RefreshToken
+from src.models.task import Task
+from src.models.uploaded_code import UploadedCode
 
 # Import models for registration with Base.metadata
 from src.models.user import User
-from src.models.refresh_token import RefreshToken
-from src.models.project import Project
-from src.models.task import Task
-from src.models.uploaded_code import UploadedCode
-from src.models.code_file import CodeFile
-from src.models.learning_document import LearningDocument
 
 # Export base classes and models
 __all__ = [

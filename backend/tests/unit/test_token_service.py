@@ -14,8 +14,8 @@ TDD Phase: RED
 
 import hashlib
 import uuid
-from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -84,7 +84,7 @@ class TestTokenServiceAccessToken:
         assert payload is not None
         assert payload.sub == str(user_id)
         assert payload.type == TokenType.ACCESS
-        assert payload.exp > datetime.now(timezone.utc)
+        assert payload.exp > datetime.now(UTC)
 
     def test_verify_access_token_rejects_refresh_token(
         self, token_service: TokenService
@@ -110,13 +110,14 @@ class TestTokenServiceAccessToken:
     ) -> None:
         """Verify should reject expired tokens."""
         from jose import jwt as jose_jwt
+
         from src.utils.jwt import get_jwt_settings
 
         user_id = uuid.uuid4()
         settings = get_jwt_settings()
 
         # Create an expired token by setting exp in the past
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
             "type": "access",
@@ -167,7 +168,7 @@ class TestTokenServiceRefreshToken:
     ) -> None:
         """Refresh token hash should be stored in database."""
         user_id = uuid.uuid4()
-        token = await token_service.create_refresh_token(user_id)
+        await token_service.create_refresh_token(user_id)
 
         # Verify add was called with RefreshToken
         mock_db.add.assert_called_once()
@@ -206,9 +207,13 @@ class TestTokenServiceRefreshToken:
         added_token = mock_db.add.call_args[0][0]
         assert added_token.expires_at is not None
         # Should expire in approximately 7 days (6-7 days to allow for timing)
-        time_diff = added_token.expires_at - datetime.now(timezone.utc)
+        time_diff = added_token.expires_at - datetime.now(UTC)
         # Check total seconds is between 6 and 7 days
-        assert timedelta(days=6).total_seconds() < time_diff.total_seconds() <= timedelta(days=7).total_seconds()
+        assert (
+            timedelta(days=6).total_seconds()
+            < time_diff.total_seconds()
+            <= timedelta(days=7).total_seconds()
+        )
 
     @pytest.mark.asyncio
     async def test_create_refresh_token_is_valid_jwt(

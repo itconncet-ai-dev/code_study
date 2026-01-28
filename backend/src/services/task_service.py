@@ -35,16 +35,15 @@ Reference: data-model.md §Task entity
 Task: T068 - Implement TaskService (create, get, update, soft delete)
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.exceptions import ForbiddenError, NotFoundError, ValidationError
+from src.api.exceptions import NotFoundError, ValidationError
 from src.models.task import Task
 from src.services.project_service import ProjectService
-
 
 # Trash retention period in days (per spec FR-009E)
 TRASH_RETENTION_DAYS = 30
@@ -304,7 +303,7 @@ class TaskService:
             task.description = description
 
         # Update timestamp
-        task.updated_at = datetime.now(timezone.utc)
+        task.updated_at = datetime.now(UTC)
 
         await self.db.commit()
         await self.db.refresh(task)
@@ -343,7 +342,7 @@ class TaskService:
         task = await self.get_by_id(task_id, user_id)
 
         # Set soft delete fields
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         task.deletion_status = "trashed"
         task.trashed_at = now
         task.scheduled_deletion_at = now + timedelta(days=TRASH_RETENTION_DAYS)
@@ -363,9 +362,7 @@ class TaskService:
             int: The next task number (starting from 1)
         """
         # Get the maximum task_number for this project
-        stmt = select(func.max(Task.task_number)).where(
-            Task.project_id == project_id
-        )
+        stmt = select(func.max(Task.task_number)).where(Task.project_id == project_id)
         result = await self.db.execute(stmt)
         max_number = result.scalar()
 

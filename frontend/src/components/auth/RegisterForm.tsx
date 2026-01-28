@@ -28,11 +28,7 @@ interface FormErrors {
  * Registration form component with email, password, and confirm password fields.
  * Includes client-side validation and loading/error states.
  */
-export function RegisterForm({
-  onSubmit,
-  isLoading = false,
-  error,
-}: RegisterFormProps) {
+export function RegisterForm({ onSubmit, isLoading = false, error }: RegisterFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -85,10 +81,7 @@ export function RegisterForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* API Error Display */}
       {error && (
-        <div
-          className="rounded-md bg-destructive/15 p-3 text-sm text-destructive"
-          role="alert"
-        >
+        <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive" role="alert">
           {error}
         </div>
       )}
@@ -144,9 +137,7 @@ export function RegisterForm({
           onChange={(e) => setConfirmPassword(e.target.value)}
           disabled={isLoading}
           aria-invalid={!!formErrors.confirmPassword}
-          aria-describedby={
-            formErrors.confirmPassword ? 'confirm-password-error' : undefined
-          }
+          aria-describedby={formErrors.confirmPassword ? 'confirm-password-error' : undefined}
         />
         {formErrors.confirmPassword && (
           <p id="confirm-password-error" className="text-sm text-destructive">

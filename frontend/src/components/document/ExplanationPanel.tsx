@@ -64,16 +64,11 @@ export function ExplanationPanel({
         <nav className="w-64 border-r border-gray-200 overflow-y-auto bg-gray-50">
           <div className="p-4 space-y-1">
             {chapters.map((chapter) => (
-              <div
-                key={chapter.number}
-                className="flex items-start gap-2 group"
-              >
+              <div key={chapter.number} className="flex items-start gap-2 group">
                 <input
                   type="checkbox"
                   checked={chapter.completed}
-                  onChange={(e) =>
-                    onChapterComplete(chapter.number, e.target.checked)
-                  }
+                  onChange={(e) => onChapterComplete(chapter.number, e.target.checked)}
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   aria-label={`${chapter.title} 완료`}
                 />
@@ -87,9 +82,7 @@ export function ExplanationPanel({
                   )}
                 >
                   <div className="font-medium">Chapter {chapter.number}</div>
-                  <div className="text-xs mt-0.5 opacity-90">
-                    {chapter.title}
-                  </div>
+                  <div className="text-xs mt-0.5 opacity-90">{chapter.title}</div>
                 </button>
               </div>
             ))}
@@ -97,10 +90,7 @@ export function ExplanationPanel({
         </nav>
 
         {/* Content Area */}
-        <div
-          ref={contentRef}
-          className="flex-1 overflow-y-auto p-6"
-        >
+        <div ref={contentRef} className="flex-1 overflow-y-auto p-6">
           {children}
         </div>
       </div>

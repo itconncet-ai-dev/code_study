@@ -35,10 +35,7 @@ class TestUserModel:
         """User should have a UUID primary key field."""
         from src.models.user import User
 
-        user = User(
-            email="test@example.com",
-            password_hash="hashed_password_123"
-        )
+        user = User(email="test@example.com", password_hash="hashed_password_123")
 
         assert user.id is not None
         assert isinstance(user.id, uuid.UUID)
@@ -67,10 +64,7 @@ class TestUserModel:
         """User skill_level should default to 'Complete Beginner'."""
         from src.models.user import User
 
-        user = User(
-            email="test@example.com",
-            password_hash="hashed_password_123"
-        )
+        user = User(email="test@example.com", password_hash="hashed_password_123")
 
         assert user.skill_level == "Complete Beginner"
 
@@ -78,10 +72,7 @@ class TestUserModel:
         """User last_login_at should be nullable."""
         from src.models.user import User
 
-        user = User(
-            email="test@example.com",
-            password_hash="hashed_password_123"
-        )
+        user = User(email="test@example.com", password_hash="hashed_password_123")
 
         assert user.last_login_at is None
 
@@ -127,7 +118,7 @@ class TestUserModelDatabase:
 
         user = User(
             email="dbtest@example.com",
-            password_hash="$2b$12$test_hash_value_here_for_testing"
+            password_hash="$2b$12$test_hash_value_here_for_testing",
         )
 
         db_session.add(user)
@@ -150,17 +141,11 @@ class TestUserModelDatabase:
         """Email uniqueness constraint should be enforced at database level."""
         from src.models.user import User
 
-        user1 = User(
-            email="duplicate@example.com",
-            password_hash="hash1"
-        )
+        user1 = User(email="duplicate@example.com", password_hash="hash1")
         db_session.add(user1)
         await db_session.commit()
 
-        user2 = User(
-            email="duplicate@example.com",
-            password_hash="hash2"
-        )
+        user2 = User(email="duplicate@example.com", password_hash="hash2")
         db_session.add(user2)
 
         with pytest.raises(IntegrityError):
@@ -170,10 +155,7 @@ class TestUserModelDatabase:
         """created_at and updated_at should be automatically set."""
         from src.models.user import User
 
-        user = User(
-            email="timestamp@example.com",
-            password_hash="test_hash"
-        )
+        user = User(email="timestamp@example.com", password_hash="test_hash")
 
         db_session.add(user)
         await db_session.commit()

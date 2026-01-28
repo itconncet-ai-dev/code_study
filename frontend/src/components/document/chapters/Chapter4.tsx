@@ -18,12 +18,8 @@ export function Chapter4LineByLine({ content }: Chapter4Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {content.title}
-        </h1>
-        <p className="text-gray-600">
-          코드를 한 줄씩 자세히 설명합니다
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{content.title}</h1>
+        <p className="text-gray-600">코드를 한 줄씩 자세히 설명합니다</p>
       </div>
 
       <div className="space-y-4">
@@ -39,9 +35,7 @@ export function Chapter4LineByLine({ content }: Chapter4Props) {
                   <span className="text-xs text-gray-500">라인</span>
                 </div>
                 <pre className="bg-gray-900 text-gray-100 p-3 rounded-lg overflow-x-auto">
-                  <code className="text-sm font-mono">
-                    {explanation.code}
-                  </code>
+                  <code className="text-sm font-mono">{explanation.code}</code>
                 </pre>
               </div>
 
@@ -51,19 +45,13 @@ export function Chapter4LineByLine({ content }: Chapter4Props) {
                   <h3 className="text-sm font-semibold text-gray-700 mb-1">
                     이 줄은 무엇을 하나요?
                   </h3>
-                  <p className="text-gray-800 leading-relaxed">
-                    {explanation.what_it_does}
-                  </p>
+                  <p className="text-gray-800 leading-relaxed">{explanation.what_it_does}</p>
                 </div>
 
                 {/* Syntax Breakdown */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-1">
-                    문법 설명
-                  </h3>
-                  <p className="text-gray-800 leading-relaxed">
-                    {explanation.syntax_breakdown}
-                  </p>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">문법 설명</h3>
+                  <p className="text-gray-800 leading-relaxed">{explanation.syntax_breakdown}</p>
                 </div>
 
                 {/* Real-life Analogy */}
@@ -72,17 +60,13 @@ export function Chapter4LineByLine({ content }: Chapter4Props) {
                     <span>💡</span>
                     실생활 비유
                   </h3>
-                  <p className="text-purple-900 leading-relaxed">
-                    {explanation.analogy}
-                  </p>
+                  <p className="text-purple-900 leading-relaxed">{explanation.analogy}</p>
                 </div>
 
                 {/* Alternative Examples */}
                 {explanation.alternative_examples && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-700 mb-1">
-                      다른 예시
-                    </h3>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-1">다른 예시</h3>
                     <pre className="bg-gray-100 p-3 rounded-lg overflow-x-auto">
                       <code className="text-sm text-gray-800">
                         {explanation.alternative_examples}
@@ -98,9 +82,7 @@ export function Chapter4LineByLine({ content }: Chapter4Props) {
                       <span>⚠️</span>
                       중요한 참고사항
                     </h3>
-                    <p className="text-yellow-900 text-sm leading-relaxed">
-                      {explanation.notes}
-                    </p>
+                    <p className="text-yellow-900 text-sm leading-relaxed">{explanation.notes}</p>
                   </div>
                 )}
               </div>

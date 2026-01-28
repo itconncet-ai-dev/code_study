@@ -39,14 +39,8 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">내 프로젝트</h1>
           <div className="flex items-center gap-4">
-            {user && (
-              <span className="text-sm text-gray-600">{user.email}</span>
-            )}
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              disabled={isLogoutLoading}
-            >
+            {user && <span className="text-sm text-gray-600">{user.email}</span>}
+            <Button variant="outline" onClick={handleLogout} disabled={isLogoutLoading}>
               {isLogoutLoading ? '로그아웃 중...' : '로그아웃'}
             </Button>
           </div>
@@ -54,9 +48,7 @@ export default function Dashboard() {
 
         {/* Create Project Button */}
         <div className="mb-6">
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            새 프로젝트 만들기
-          </Button>
+          <Button onClick={() => setIsCreateModalOpen(true)}>새 프로젝트 만들기</Button>
         </div>
 
         {/* Loading State */}
@@ -79,15 +71,9 @@ export default function Dashboard() {
         {!isLoading && !error && !hasProjects && (
           <div className="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-lg border border-gray-200">
             <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                아직 프로젝트가 없습니다
-              </h3>
-              <p className="text-gray-600 mb-6">
-                첫 번째 학습 프로젝트를 만들어 시작하세요
-              </p>
-              <Button onClick={() => setIsCreateModalOpen(true)}>
-                프로젝트 만들기
-              </Button>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">아직 프로젝트가 없습니다</h3>
+              <p className="text-gray-600 mb-6">첫 번째 학습 프로젝트를 만들어 시작하세요</p>
+              <Button onClick={() => setIsCreateModalOpen(true)}>프로젝트 만들기</Button>
             </div>
           </div>
         )}
@@ -102,10 +88,7 @@ export default function Dashboard() {
         )}
 
         {/* Create Project Modal */}
-        <CreateProjectModal
-          open={isCreateModalOpen}
-          onOpenChange={setIsCreateModalOpen}
-        />
+        <CreateProjectModal open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} />
       </div>
     </div>
   )

@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import func, select
@@ -55,11 +55,13 @@ class DocumentQueueError(Exception):
 
 class AlreadyInQueueError(DocumentQueueError):
     """Raised when trying to queue a document that's already queued."""
+
     pass
 
 
 class NotInQueueError(DocumentQueueError):
     """Raised when trying to operate on a document not in queue."""
+
     pass
 
 
@@ -204,6 +206,7 @@ class DocumentQueueService:
             elif position > 0:
                 print(f"{position} tasks ahead of you")
         """
+
         async def _get_position(session: AsyncSession) -> int:
             # Get the document for this task
             stmt = select(LearningDocument).where(LearningDocument.task_id == task_id)
@@ -278,8 +281,8 @@ class DocumentQueueService:
 
                 if document and document.generation_started_at:
                     elapsed = (
-                        datetime.now(timezone.utc) -
-                        document.generation_started_at.replace(tzinfo=timezone.utc)
+                        datetime.now(UTC)
+                        - document.generation_started_at.replace(tzinfo=UTC)
                     ).total_seconds()
                     remaining = max(0, self.avg_generation_time - int(elapsed))
                     return remaining
@@ -320,6 +323,7 @@ class DocumentQueueService:
             print(f"Status: {status['status']}")
             print(f"Wait time: {status['estimated_time_remaining']} seconds")
         """
+
         async def _get_status(session: AsyncSession) -> dict[str, Any]:
             stmt = select(LearningDocument).where(LearningDocument.task_id == task_id)
             result = await session.execute(stmt)
@@ -382,6 +386,7 @@ class DocumentQueueService:
             if await service.is_generation_in_progress(task_id):
                 print("Please wait for generation to complete")
         """
+
         async def _check_in_progress(session: AsyncSession) -> bool:
             stmt = select(LearningDocument).where(LearningDocument.task_id == task_id)
             result = await session.execute(stmt)
@@ -422,6 +427,7 @@ class DocumentQueueService:
             if await service.cancel_generation(task_id):
                 print("Generation cancelled")
         """
+
         async def _cancel(session: AsyncSession) -> bool:
             stmt = select(LearningDocument).where(LearningDocument.task_id == task_id)
             result = await session.execute(stmt)
@@ -442,12 +448,13 @@ class DocumentQueueService:
             # Mark as failed with cancellation message
             document.generation_status = "failed"
             document.generation_error = "Cancelled by user"
-            document.generation_completed_at = datetime.now(timezone.utc)
+            document.generation_completed_at = datetime.now(UTC)
 
             # Revoke Celery task if exists
             if document.celery_task_id:
                 try:
                     from src.tasks.celery_app import celery_app
+
                     celery_app.control.revoke(
                         document.celery_task_id,
                         terminate=False,

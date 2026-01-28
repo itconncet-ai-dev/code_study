@@ -31,7 +31,7 @@ Usage:
         user_id = payload.sub
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from functools import lru_cache
 from typing import Any
@@ -134,7 +134,7 @@ class TokenPayload(BaseModel):
     @property
     def is_expired(self) -> bool:
         """Check if token has expired."""
-        return datetime.now(timezone.utc) > self.exp
+        return datetime.now(UTC) > self.exp
 
     @property
     def is_access_token(self) -> bool:
@@ -270,7 +270,7 @@ def _create_token(
     if settings is None:
         settings = get_jwt_settings()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # Determine expiration based on token type
     if token_type == TokenType.ACCESS:
@@ -344,8 +344,8 @@ def verify_token(
         )
 
         # Convert timestamps to datetime
-        payload["iat"] = datetime.fromtimestamp(payload["iat"], tz=timezone.utc)
-        payload["exp"] = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+        payload["iat"] = datetime.fromtimestamp(payload["iat"], tz=UTC)
+        payload["exp"] = datetime.fromtimestamp(payload["exp"], tz=UTC)
 
         # Parse token type
         payload["type"] = TokenType(payload["type"])
@@ -414,8 +414,8 @@ def decode_token(
         )
 
         # Convert timestamps to datetime
-        payload["iat"] = datetime.fromtimestamp(payload["iat"], tz=timezone.utc)
-        payload["exp"] = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+        payload["iat"] = datetime.fromtimestamp(payload["iat"], tz=UTC)
+        payload["exp"] = datetime.fromtimestamp(payload["exp"], tz=UTC)
 
         # Parse token type
         payload["type"] = TokenType(payload["type"])
@@ -464,7 +464,9 @@ def is_token_expired(token: str, settings: JWTSettings | None = None) -> bool:
     return payload.is_expired
 
 
-def get_remaining_lifetime(token: str, settings: JWTSettings | None = None) -> timedelta:
+def get_remaining_lifetime(
+    token: str, settings: JWTSettings | None = None
+) -> timedelta:
     """
     Get the remaining lifetime of a token.
 
@@ -479,4 +481,4 @@ def get_remaining_lifetime(token: str, settings: JWTSettings | None = None) -> t
         TokenInvalidError: If the token cannot be decoded
     """
     payload = decode_token(token, verify_signature=False, settings=settings)
-    return payload.exp - datetime.now(timezone.utc)
+    return payload.exp - datetime.now(UTC)

@@ -56,7 +56,9 @@ export function FileUpload({ onFilesChange, multiple = false }: FileUploadProps)
   }
 
   const handleFiles = (newFiles: FileList | null) => {
-    if (!newFiles || newFiles.length === 0) return
+    if (!newFiles || newFiles.length === 0) {
+      return
+    }
 
     const fileArray = Array.from(newFiles)
     const { valid, error: validationError } = validateFiles(fileArray)
@@ -113,8 +115,12 @@ export function FileUpload({ onFilesChange, multiple = false }: FileUploadProps)
   }
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+    if (bytes < 1024) {
+      return `${bytes} B`
+    }
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(2)} KB`
+    }
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
   }
 
@@ -126,9 +132,7 @@ export function FileUpload({ onFilesChange, multiple = false }: FileUploadProps)
       <div
         className={cn(
           'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
-          isDragging
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 hover:border-gray-400',
+          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400',
           error && 'border-red-300'
         )}
         onDragEnter={handleDragEnter}
@@ -149,16 +153,13 @@ export function FileUpload({ onFilesChange, multiple = false }: FileUploadProps)
         <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <p className="text-gray-600 mb-2">파일을 드래그하거나 클릭하여 선택하세요</p>
         <p className="text-sm text-gray-500">
-          지원 형식: .py, .js, .ts, .jsx, .tsx, .html, .css, .java, .cpp, .c, .txt,
-          .md
+          지원 형식: .py, .js, .ts, .jsx, .tsx, .html, .css, .java, .cpp, .c, .txt, .md
         </p>
         <p className="text-sm text-gray-500 mt-1">최대 크기: 10MB</p>
       </div>
 
       {/* Error Message */}
-      {error && (
-        <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{error}</div>
-      )}
+      {error && <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{error}</div>}
 
       {/* Selected Files */}
       {files.length > 0 && (
@@ -166,9 +167,7 @@ export function FileUpload({ onFilesChange, multiple = false }: FileUploadProps)
           <div className="flex justify-between items-center">
             <h4 className="text-sm font-medium">선택된 파일</h4>
             {files.length > 1 && (
-              <span className="text-sm text-gray-500">
-                총 크기: {formatFileSize(totalSize)}
-              </span>
+              <span className="text-sm text-gray-500">총 크기: {formatFileSize(totalSize)}</span>
             )}
           </div>
           <div className="space-y-2">
@@ -180,9 +179,7 @@ export function FileUpload({ onFilesChange, multiple = false }: FileUploadProps)
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {file.name}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
                     <p className="text-xs text-gray-500">
                       {formatFileSize(file.size)} • {extension}
                     </p>

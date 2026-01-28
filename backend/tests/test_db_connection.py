@@ -6,7 +6,7 @@ This test demonstrates that the database session management is working correctly
 """
 
 import pytest
-from sqlalchemy import select, func, text
+from sqlalchemy import func, select, text
 
 
 class TestSQLAlchemyConnection:
@@ -70,13 +70,17 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temporary table
-            await session.execute(text("""
+            await session.execute(
+                text(
+                    """
                 CREATE TEMPORARY TABLE users_temp (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     email VARCHAR(100)
                 )
-            """))
+            """
+                )
+            )
 
             # Insert data
             await session.execute(
@@ -116,14 +120,18 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(text("""
+            await session.execute(
+                text(
+                    """
                 CREATE TEMPORARY TABLE products_temp (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     price INT,
                     status VARCHAR(50) DEFAULT 'active'
                 )
-            """))
+            """
+                )
+            )
 
             # Insert data
             await session.execute(
@@ -132,9 +140,7 @@ class TestSQLAlchemyConnection:
 
             # Update data
             await session.execute(
-                text(
-                    "UPDATE products_temp SET price = 900 WHERE name = 'Laptop'"
-                )
+                text("UPDATE products_temp SET price = 900 WHERE name = 'Laptop'")
             )
 
             # Verify update
@@ -156,13 +162,17 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(text("""
+            await session.execute(
+                text(
+                    """
                 CREATE TEMPORARY TABLE items_temp (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     quantity INT
                 )
-            """))
+            """
+                )
+            )
 
             # Insert data
             await session.execute(
@@ -172,9 +182,7 @@ class TestSQLAlchemyConnection:
             )
 
             # Delete one record
-            await session.execute(
-                text("DELETE FROM items_temp WHERE name = 'Item1'")
-            )
+            await session.execute(text("DELETE FROM items_temp WHERE name = 'Item1'"))
 
             # Verify deletion
             result = await session.execute(text("SELECT COUNT(*) FROM items_temp"))
@@ -193,17 +201,22 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(text("""
+            await session.execute(
+                text(
+                    """
                 CREATE TEMPORARY TABLE sales_temp (
                     id SERIAL PRIMARY KEY,
                     amount INT,
                     category VARCHAR(50)
                 )
-            """))
+            """
+                )
+            )
 
             # Insert data
             await session.execute(
-                text("""
+                text(
+                    """
                 INSERT INTO sales_temp (amount, category)
                 VALUES (100, 'electronics'),
                        (200, 'electronics'),
@@ -221,15 +234,15 @@ class TestSQLAlchemyConnection:
 
             # Test SUM
             result = await session.execute(
-                text("SELECT SUM(amount) FROM sales_temp WHERE category = 'electronics'")
+                text(
+                    "SELECT SUM(amount) FROM sales_temp WHERE category = 'electronics'"
+                )
             )
             electronics_total = result.scalar()
             assert electronics_total == 300
 
             # Test AVG
-            result = await session.execute(
-                text("SELECT AVG(amount) FROM sales_temp")
-            )
+            result = await session.execute(text("SELECT AVG(amount) FROM sales_temp"))
             average = result.scalar()
             assert average == 165.0
 
@@ -247,17 +260,22 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(text("""
+            await session.execute(
+                text(
+                    """
                 CREATE TEMPORARY TABLE orders_temp (
                     id SERIAL PRIMARY KEY,
                     customer VARCHAR(100),
                     amount INT
                 )
-            """))
+            """
+                )
+            )
 
             # Insert data
             await session.execute(
-                text("""
+                text(
+                    """
                 INSERT INTO orders_temp (customer, amount)
                 VALUES ('Alice', 100), ('Alice', 150), ('Bob', 200), ('Bob', 50)
             """
@@ -266,7 +284,8 @@ class TestSQLAlchemyConnection:
 
             # Test GROUP BY
             result = await session.execute(
-                text("""
+                text(
+                    """
                 SELECT customer, SUM(amount) as total
                 FROM orders_temp
                 GROUP BY customer
@@ -294,12 +313,16 @@ class TestSQLAlchemyConnection:
 
         # Create and populate table in first session
         async with async_session_factory() as session:
-            await session.execute(text("""
+            await session.execute(
+                text(
+                    """
                 CREATE TEMPORARY TABLE rollback_test (
                     id SERIAL PRIMARY KEY,
                     value VARCHAR(100)
                 )
-            """))
+            """
+                )
+            )
             await session.commit()
 
         # Insert data but rollback

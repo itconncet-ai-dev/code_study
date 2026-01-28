@@ -64,9 +64,7 @@ describe('taskService', () => {
 
       const result = await taskService.getTasks('project-1', true)
 
-      expect(apiClient.get).toHaveBeenCalledWith(
-        '/projects/project-1/tasks?include_trashed=true'
-      )
+      expect(apiClient.get).toHaveBeenCalledWith('/projects/project-1/tasks?include_trashed=true')
       expect(result).toEqual({ tasks: mockTasks })
     })
   })

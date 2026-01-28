@@ -12,10 +12,11 @@ import os
 import sys
 from logging.config import fileConfig
 
-from alembic import context
 from dotenv import load_dotenv
-from sqlalchemy import pool, engine_from_config
+from sqlalchemy import engine_from_config, pool
 from sqlalchemy.engine import Connection
+
+from alembic import context
 
 # Add the backend source directory to Python path for model imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -77,10 +78,14 @@ def get_database_url() -> str:
     # Convert async driver to sync driver for Alembic operations
     # Alembic migrations run synchronously
     if database_url.startswith("postgresql+asyncpg://"):
-        database_url = database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+        database_url = database_url.replace(
+            "postgresql+asyncpg://", "postgresql+psycopg2://"
+        )
     elif database_url.startswith("postgresql://"):
         # Standard postgres URL, convert to psycopg2 explicitly
-        database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        database_url = database_url.replace(
+            "postgresql://", "postgresql+psycopg2://", 1
+        )
 
     return database_url
 

@@ -129,7 +129,7 @@ class DatabaseSettings(BaseSettings):
 
     @field_validator("postgres_password")
     @classmethod
-    def validate_password_in_production(cls, v: str, info) -> str:
+    def validate_password_in_production(cls, v: str, _info) -> str:
         """Warn if using default password in non-development environment."""
         # Access other values through info.data
         return v

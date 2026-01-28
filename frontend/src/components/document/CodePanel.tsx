@@ -18,12 +18,7 @@ interface CodePanelProps {
  * - Optional line highlighting for synchronized scrolling
  * - Scroll event callback for synchronization with ExplanationPanel
  */
-export function CodePanel({
-  code,
-  language,
-  highlightedLines = [],
-  onScroll,
-}: CodePanelProps) {
+export function CodePanel({ code, language, highlightedLines = [], onScroll }: CodePanelProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
 
   /**

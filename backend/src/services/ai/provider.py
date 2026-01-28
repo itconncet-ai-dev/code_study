@@ -18,7 +18,7 @@ Usage:
 import logging
 from enum import Enum
 from functools import lru_cache
-from typing import Protocol, Any
+from typing import Any, Protocol
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 class AIProvider(str, Enum):
     """Supported AI providers."""
+
     GEMINI = "gemini"
     OPENROUTER = "openrouter"
 
@@ -113,10 +114,12 @@ def get_ai_client(provider: AIProvider | None = None) -> AIClientProtocol:
 
     if provider == AIProvider.GEMINI:
         from src.services.ai.gemini_client import get_gemini_client
+
         return get_gemini_client()
 
     elif provider == AIProvider.OPENROUTER:
         from src.services.ai.openrouter_client import get_openrouter_client
+
         return get_openrouter_client()
 
     else:
@@ -135,13 +138,14 @@ def get_ai_error_classes(provider: AIProvider | None = None):
 
     if provider == AIProvider.GEMINI:
         from src.services.ai.gemini_client import (
-            GeminiError,
             GeminiAPIError,
+            GeminiContentBlockedError,
+            GeminiError,
+            GeminiInvalidResponseError,
             GeminiRateLimitError,
             GeminiTimeoutError,
-            GeminiContentBlockedError,
-            GeminiInvalidResponseError,
         )
+
         return {
             "base": GeminiError,
             "api": GeminiAPIError,
@@ -153,13 +157,14 @@ def get_ai_error_classes(provider: AIProvider | None = None):
 
     elif provider == AIProvider.OPENROUTER:
         from src.services.ai.openrouter_client import (
-            OpenRouterError,
             OpenRouterAPIError,
+            OpenRouterContentBlockedError,
+            OpenRouterError,
+            OpenRouterInvalidResponseError,
             OpenRouterRateLimitError,
             OpenRouterTimeoutError,
-            OpenRouterContentBlockedError,
-            OpenRouterInvalidResponseError,
         )
+
         return {
             "base": OpenRouterError,
             "api": OpenRouterAPIError,

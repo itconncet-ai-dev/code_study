@@ -47,7 +47,9 @@ class DocumentGenerationTask(CeleryTask):
     Provides lifecycle hooks for logging and error handling.
     """
 
-    def on_success(self, retval: Any, task_id: str, args: tuple, kwargs: dict) -> None:
+    def on_success(
+        self, _retval: Any, task_id: str, _args: tuple, _kwargs: dict
+    ) -> None:
         """Called when task succeeds."""
         logger.info(f"Document generation task {task_id} completed successfully")
 
@@ -55,9 +57,9 @@ class DocumentGenerationTask(CeleryTask):
         self,
         exc: Exception,
         task_id: str,
-        args: tuple,
-        kwargs: dict,
-        einfo: Any,
+        _args: tuple,
+        _kwargs: dict,
+        _einfo: Any,
     ) -> None:
         """Called when task fails after all retries."""
         logger.error(f"Document generation task {task_id} failed: {exc}")
@@ -66,9 +68,9 @@ class DocumentGenerationTask(CeleryTask):
         self,
         exc: Exception,
         task_id: str,
-        args: tuple,
-        kwargs: dict,
-        einfo: Any,
+        _args: tuple,
+        _kwargs: dict,
+        _einfo: Any,
     ) -> None:
         """Called when task is retried."""
         logger.warning(f"Document generation task {task_id} retrying: {exc}")
@@ -120,9 +122,7 @@ def generate_document_task(self, task_id: str) -> dict[str, Any]:
 
     try:
         # Run the async generation in sync context
-        result = asyncio.run(
-            _generate_document_async(task_id, celery_task_id)
-        )
+        result = asyncio.run(_generate_document_async(task_id, celery_task_id))
         return result
 
     except Exception as exc:
@@ -165,8 +165,8 @@ async def _generate_document_async(
         dict: Result with document_id, status, and duration
     """
     from src.services.document.document_generation_service import (
-        DocumentGenerationService,
         DocumentGenerationError,
+        DocumentGenerationService,
     )
 
     task_uuid = uuid.UUID(task_id)
@@ -202,7 +202,7 @@ async def _mark_generation_failed(task_id: str, error_message: str) -> None:
         task_id: UUID string of the task
         error_message: Error description
     """
-    from sqlalchemy import select, update
+    from sqlalchemy import update
 
     from src.db.session import get_session_context
     from src.models.learning_document import LearningDocument

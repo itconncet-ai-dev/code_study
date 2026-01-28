@@ -104,14 +104,14 @@ class UploadedCode(Base, UUIDPrimaryKeyMixin):
     )
 
     # Relationships
-    task: Mapped["Task"] = relationship(
+    task: Mapped[Task] = relationship(
         "Task",
         back_populates="uploaded_code",
         lazy="selectin",
     )
 
     # One-to-many relationship to CodeFile
-    code_files: Mapped[list["CodeFile"]] = relationship(
+    code_files: Mapped[list[CodeFile]] = relationship(
         "CodeFile",
         back_populates="uploaded_code",
         lazy="selectin",

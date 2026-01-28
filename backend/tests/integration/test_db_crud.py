@@ -5,7 +5,7 @@ Tests real CRUD operations directly against PostgreSQL database.
 """
 
 import pytest
-from sqlalchemy import select, func, text
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -45,13 +45,15 @@ class TestBasicDatabaseOperations:
         """
         # Create a temporary table
         await db_session.execute(
-            text("""
+            text(
+                """
             CREATE TEMPORARY TABLE test_data (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100),
                 value INT
             )
-        """)
+        """
+            )
         )
 
         # Insert data
@@ -84,28 +86,26 @@ class TestBasicDatabaseOperations:
         """
         # Create temporary table
         await db_session.execute(
-            text("""
+            text(
+                """
             CREATE TEMPORARY TABLE test_update (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100),
                 status VARCHAR(50)
             )
-        """)
+        """
+            )
         )
 
         # Insert initial data
         await db_session.execute(
-            text(
-                "INSERT INTO test_update (name, status) VALUES ('record1', 'pending')"
-            )
+            text("INSERT INTO test_update (name, status) VALUES ('record1', 'pending')")
         )
         await db_session.commit()
 
         # Update data
         await db_session.execute(
-            text(
-                "UPDATE test_update SET status = 'completed' WHERE name = 'record1'"
-            )
+            text("UPDATE test_update SET status = 'completed' WHERE name = 'record1'")
         )
         await db_session.commit()
 
@@ -126,12 +126,14 @@ class TestBasicDatabaseOperations:
         """
         # Create temporary table
         await db_session.execute(
-            text("""
+            text(
+                """
             CREATE TEMPORARY TABLE test_delete (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100)
             )
-        """)
+        """
+            )
         )
 
         # Insert multiple records
@@ -144,7 +146,9 @@ class TestBasicDatabaseOperations:
         await db_session.commit()
 
         # Delete one record
-        await db_session.execute(text("DELETE FROM test_delete WHERE name = 'delete_me'"))
+        await db_session.execute(
+            text("DELETE FROM test_delete WHERE name = 'delete_me'")
+        )
         await db_session.commit()
 
         # Verify deletion
@@ -169,16 +173,20 @@ class TestBasicDatabaseOperations:
         """
         # Create table
         await db_session.execute(
-            text("""
+            text(
+                """
             CREATE TEMPORARY TABLE test_transaction (
                 id SERIAL PRIMARY KEY,
                 value INT
             )
-        """)
+        """
+            )
         )
 
         # Insert and commit
-        await db_session.execute(text("INSERT INTO test_transaction (value) VALUES (100)"))
+        await db_session.execute(
+            text("INSERT INTO test_transaction (value) VALUES (100)")
+        )
         await db_session.commit()
 
         # Verify data persists after commit
@@ -218,13 +226,15 @@ class TestBasicDatabaseOperations:
         """
         # Create test table
         await db_session.execute(
-            text("""
+            text(
+                """
             CREATE TEMPORARY TABLE test_agg (
                 id SERIAL PRIMARY KEY,
                 category VARCHAR(50),
                 amount INT
             )
-        """)
+        """
+            )
         )
 
         # Insert data
@@ -248,13 +258,13 @@ class TestBasicDatabaseOperations:
         assert total == 300
 
         # Test AVG
-        avg_result = await db_session.execute(
-            text("SELECT AVG(amount) FROM test_agg")
-        )
+        avg_result = await db_session.execute(text("SELECT AVG(amount) FROM test_agg"))
         average = avg_result.scalar()
         assert average == 175.0
 
-        print(f"[PASS] Aggregate functions working: COUNT={count}, SUM(A)={total}, AVG={average}")
+        print(
+            f"[PASS] Aggregate functions working: COUNT={count}, SUM(A)={total}, AVG={average}"
+        )
 
 
 class TestConnectionManagement:

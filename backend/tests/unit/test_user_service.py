@@ -20,8 +20,8 @@ Test Coverage:
 """
 
 import uuid
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -47,8 +47,7 @@ class TestUserServiceRegister:
 
         service = UserService(mock_session)
         user = await service.register(
-            email="newuser@example.com",
-            password="SecurePass123!"
+            email="newuser@example.com", password="SecurePass123!"
         )
 
         assert user is not None
@@ -72,8 +71,7 @@ class TestUserServiceRegister:
 
         service = UserService(mock_session)
         user = await service.register(
-            email="test@example.com",
-            password="SecurePass123!"
+            email="test@example.com", password="SecurePass123!"
         )
 
         # Password should be hashed (bcrypt starts with $2b$)
@@ -92,8 +90,7 @@ class TestUserServiceRegister:
 
         # Mock existing user found
         existing_user = User(
-            email="existing@example.com",
-            password_hash="$2b$12$somehash"
+            email="existing@example.com", password_hash="$2b$12$somehash"
         )
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_user)
@@ -103,8 +100,7 @@ class TestUserServiceRegister:
 
         with pytest.raises(AlreadyExistsError) as exc_info:
             await service.register(
-                email="existing@example.com",
-                password="SecurePass123!"
+                email="existing@example.com", password="SecurePass123!"
             )
 
         assert "email" in str(exc_info.value.detail).lower()
@@ -119,10 +115,7 @@ class TestUserServiceRegister:
         service = UserService(mock_session)
 
         with pytest.raises(ValidationError) as exc_info:
-            await service.register(
-                email="not-an-email",
-                password="SecurePass123!"
-            )
+            await service.register(email="not-an-email", password="SecurePass123!")
 
         assert "email" in str(exc_info.value.detail).lower()
 
@@ -137,10 +130,7 @@ class TestUserServiceRegister:
 
         # Password too short (minimum 8 characters per api-spec.yaml)
         with pytest.raises(ValidationError) as exc_info:
-            await service.register(
-                email="test@example.com",
-                password="short"
-            )
+            await service.register(email="test@example.com", password="short")
 
         assert "password" in str(exc_info.value.detail).lower()
 
@@ -160,8 +150,7 @@ class TestUserServiceRegister:
 
         service = UserService(mock_session)
         user = await service.register(
-            email="test@example.com",
-            password="SecurePass123!"
+            email="test@example.com", password="SecurePass123!"
         )
 
         assert user.skill_level == "Complete Beginner"
@@ -182,20 +171,14 @@ class TestUserServiceLogin:
 
         # Create mock user with hashed password
         hashed_password = hash_password("CorrectPass123!")
-        existing_user = User(
-            email="user@example.com",
-            password_hash=hashed_password
-        )
+        existing_user = User(email="user@example.com", password_hash=hashed_password)
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_user)
         mock_session.execute = AsyncMock(return_value=mock_result)
 
         service = UserService(mock_session)
-        user = await service.login(
-            email="user@example.com",
-            password="CorrectPass123!"
-        )
+        user = await service.login(email="user@example.com", password="CorrectPass123!")
 
         assert user is not None
         assert user.email == "user@example.com"
@@ -211,20 +194,14 @@ class TestUserServiceLogin:
         mock_session.commit = AsyncMock()
 
         hashed_password = hash_password("CorrectPass123!")
-        existing_user = User(
-            email="user@example.com",
-            password_hash=hashed_password
-        )
+        existing_user = User(email="user@example.com", password_hash=hashed_password)
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_user)
         mock_session.execute = AsyncMock(return_value=mock_result)
 
         service = UserService(mock_session)
-        user = await service.login(
-            email="user@example.com",
-            password="CorrectPass123!"
-        )
+        user = await service.login(email="user@example.com", password="CorrectPass123!")
 
         assert user.last_login_at is not None
         assert isinstance(user.last_login_at, datetime)
@@ -241,10 +218,7 @@ class TestUserServiceLogin:
         mock_session = AsyncMock()
 
         hashed_password = hash_password("CorrectPass123!")
-        existing_user = User(
-            email="user@example.com",
-            password_hash=hashed_password
-        )
+        existing_user = User(email="user@example.com", password_hash=hashed_password)
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_user)
@@ -253,10 +227,7 @@ class TestUserServiceLogin:
         service = UserService(mock_session)
 
         with pytest.raises(InvalidCredentialsError):
-            await service.login(
-                email="user@example.com",
-                password="WrongPassword123!"
-            )
+            await service.login(email="user@example.com", password="WrongPassword123!")
 
     @pytest.mark.asyncio
     async def test_login_rejects_nonexistent_email(self):
@@ -275,8 +246,7 @@ class TestUserServiceLogin:
 
         with pytest.raises(InvalidCredentialsError):
             await service.login(
-                email="nonexistent@example.com",
-                password="SomePassword123!"
+                email="nonexistent@example.com", password="SomePassword123!"
             )
 
 
@@ -293,9 +263,7 @@ class TestUserServiceGetters:
 
         user_id = uuid.uuid4()
         existing_user = User(
-            id=user_id,
-            email="user@example.com",
-            password_hash="$2b$12$somehash"
+            id=user_id, email="user@example.com", password_hash="$2b$12$somehash"
         )
 
         mock_result = AsyncMock()
@@ -332,10 +300,7 @@ class TestUserServiceGetters:
 
         mock_session = AsyncMock()
 
-        existing_user = User(
-            email="user@example.com",
-            password_hash="$2b$12$somehash"
-        )
+        existing_user = User(email="user@example.com", password_hash="$2b$12$somehash")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_user)

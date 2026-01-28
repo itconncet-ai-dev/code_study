@@ -151,7 +151,7 @@ class LearningDocument(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
 
     # Relationship to parent Task
-    task: Mapped["Task"] = relationship(
+    task: Mapped[Task] = relationship(
         "Task",
         back_populates="learning_document",
         lazy="selectin",

@@ -7,8 +7,6 @@ Tests cover:
 - Basic task behavior (without actual Celery execution)
 """
 
-import pytest
-
 from src.tasks.test_tasks import (
     quick_test,
     simulate_document_generation,
@@ -49,7 +47,10 @@ class TestSimulateDocumentGenerationTask:
 
     def test_simulate_document_generation_has_correct_name(self):
         """Test simulate_document_generation task has correct name."""
-        assert simulate_document_generation.name == "src.tasks.test_tasks.simulate_document_generation"
+        assert (
+            simulate_document_generation.name
+            == "src.tasks.test_tasks.simulate_document_generation"
+        )
 
     def test_simulate_document_generation_is_bound(self):
         """Test simulate_document_generation task is bound (has access to self)."""

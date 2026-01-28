@@ -32,7 +32,6 @@ Task: T092 - Implement prompt templates for 7-chapter document generation
 from dataclasses import dataclass
 from typing import Any
 
-
 # ============================================================================
 # SYSTEM INSTRUCTIONS
 # ============================================================================
@@ -208,7 +207,13 @@ CHAPTER7_MISTAKE_SCHEMA = {
         "why_it_matters": {"type": "string"},
         "how_to_fix": {"type": "string"},
     },
-    "required": ["mistake_title", "wrong_code", "right_code", "why_it_matters", "how_to_fix"],
+    "required": [
+        "mistake_title",
+        "wrong_code",
+        "right_code",
+        "why_it_matters",
+        "how_to_fix",
+    ],
 }
 
 CHAPTER7_SCHEMA = {
@@ -253,9 +258,11 @@ DOCUMENT_RESPONSE_SCHEMA = {
 # PROMPT TEMPLATES
 # ============================================================================
 
+
 @dataclass
 class FileInfo:
     """Information about an uploaded code file."""
+
     file_name: str
     file_path: str | None
     content: str
@@ -377,7 +384,9 @@ Return a JSON object with this structure:
 }}"""
 
     @staticmethod
-    def get_chapter3_prompt(code: str, language: str, files_info: list[FileInfo] | None = None) -> str:
+    def get_chapter3_prompt(
+        code: str, language: str, files_info: list[FileInfo] | None = None
+    ) -> str:
         """
         Generate prompt for Chapter 3: Code Structure Overview.
 
@@ -393,7 +402,9 @@ Return a JSON object with this structure:
         """
         file_section = ""
         if files_info and len(files_info) > 1:
-            file_list = "\n".join([f"- {f.file_name}: {f.file_path or 'root'}" for f in files_info])
+            file_list = "\n".join(
+                [f"- {f.file_name}: {f.file_path or 'root'}" for f in files_info]
+            )
             file_section = f"""
 FILES IN THIS UPLOAD:
 {file_list}
@@ -704,7 +715,9 @@ Return a JSON object with this structure:
         """
         file_section = ""
         if files_info and len(files_info) > 1:
-            file_list = "\n".join([f"- {f.file_name} ({f.file_path or 'root'})" for f in files_info])
+            file_list = "\n".join(
+                [f"- {f.file_name} ({f.file_path or 'root'})" for f in files_info]
+            )
             file_section = f"""
 FILES IN THIS UPLOAD:
 {file_list}
@@ -796,6 +809,7 @@ Return a JSON object with this EXACT structure:
 # HELPER FUNCTIONS
 # ============================================================================
 
+
 def get_system_instruction(use_korean: bool = False) -> str:
     """
     Get the system instruction for the AI model.
@@ -838,7 +852,7 @@ def get_document_generation_prompt(
     chapter_prompts = {
         1: DocumentPrompts.get_chapter1_prompt,
         2: DocumentPrompts.get_chapter2_prompt,
-        3: lambda c, l: DocumentPrompts.get_chapter3_prompt(c, l, files_info),
+        3: lambda c, lang: DocumentPrompts.get_chapter3_prompt(c, lang, files_info),
         4: DocumentPrompts.get_chapter4_prompt,
         5: DocumentPrompts.get_chapter5_prompt,
         6: DocumentPrompts.get_chapter6_prompt,

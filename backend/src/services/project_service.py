@@ -36,7 +36,7 @@ Task: T044 - Implement ProjectService (create, get, update, soft delete)
 Task: T045 - Implement project ownership validation
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import select
@@ -44,7 +44,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.exceptions import ForbiddenError, NotFoundError, ValidationError
 from src.models.project import Project
-
 
 # Trash retention period in days (per spec FR-009E)
 TRASH_RETENTION_DAYS = 30
@@ -252,7 +251,7 @@ class ProjectService:
             project.description = description
 
         # Update timestamp
-        project.updated_at = datetime.now(timezone.utc)
+        project.updated_at = datetime.now(UTC)
 
         await self.db.commit()
         await self.db.refresh(project)
@@ -291,7 +290,7 @@ class ProjectService:
         project = await self.get_by_id(project_id, user_id)
 
         # Set soft delete fields
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         project.deletion_status = "trashed"
         project.trashed_at = now
         project.scheduled_deletion_at = now + timedelta(days=TRASH_RETENTION_DAYS)

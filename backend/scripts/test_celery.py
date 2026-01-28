@@ -38,7 +38,7 @@ def test_quick_connectivity():
     print("   결과 대기 중...")
     try:
         response = result.get(timeout=10)
-        print(f"   ✅ 성공!")
+        print("   ✅ 성공!")
         print(f"   응답: {response['echo']}")
         return True
     except Exception as e:
@@ -75,9 +75,13 @@ def test_long_running_task():
             bar = "█" * filled + "░" * (bar_length - filled)
             print(f"\r   [{bar}] {progress:.0f}% - {status}", end="", flush=True)
         elif state == "PENDING":
-            print(f"\r   대기 중... (워커가 태스크를 가져가길 기다리는 중)", end="", flush=True)
+            print(
+                "\r   대기 중... (워커가 태스크를 가져가길 기다리는 중)",
+                end="",
+                flush=True,
+            )
         elif state == "STARTED":
-            print(f"\r   시작됨...", end="", flush=True)
+            print("\r   시작됨...", end="", flush=True)
 
         time.sleep(1)
 

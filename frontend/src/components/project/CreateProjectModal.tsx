@@ -25,14 +25,12 @@ interface CreateProjectModalProps {
  * CreateProjectModal component for creating new projects.
  * Displays a form with title and description fields.
  */
-export function CreateProjectModal({
-  open,
-  onOpenChange,
-  onSuccess,
-}: CreateProjectModalProps) {
+export function CreateProjectModal({ open, onOpenChange, onSuccess }: CreateProjectModalProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [errors, setErrors] = useState<{ title?: string; description?: string; general?: string }>({})
+  const [errors, setErrors] = useState<{ title?: string; description?: string; general?: string }>(
+    {}
+  )
 
   const queryClient = useQueryClient()
 
@@ -41,15 +39,15 @@ export function CreateProjectModal({
     onSuccess: () => {
       // Invalidate projects query to refetch the list
       queryClient.invalidateQueries({ queryKey: ['projects'] })
-      
+
       // Reset form
       setTitle('')
       setDescription('')
       setErrors({})
-      
+
       // Close modal
       onOpenChange(false)
-      
+
       // Call success callback
       onSuccess?.()
     },
@@ -70,21 +68,21 @@ export function CreateProjectModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Client-side validation
     const newErrors: { title?: string; description?: string } = {}
-    
+
     if (!title.trim()) {
       newErrors.title = '프로젝트 제목은 필수입니다'
     } else if (title.length > 255) {
       newErrors.title = '프로젝트 제목은 255자 이하여야 합니다'
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
     }
-    
+
     // Clear errors and submit
     setErrors({})
     createProjectMutation.mutate({
@@ -113,9 +111,7 @@ export function CreateProjectModal({
 
           <div className="grid gap-4 py-4">
             {errors.general && (
-              <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">
-                {errors.general}
-              </div>
+              <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{errors.general}</div>
             )}
 
             <div className="grid gap-2">
@@ -130,9 +126,7 @@ export function CreateProjectModal({
                 className={errors.title ? 'border-red-500' : ''}
                 disabled={createProjectMutation.isPending}
               />
-              {errors.title && (
-                <p className="text-sm text-red-500">{errors.title}</p>
-              )}
+              {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
             </div>
 
             <div className="grid gap-2">
@@ -145,9 +139,7 @@ export function CreateProjectModal({
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none"
                 disabled={createProjectMutation.isPending}
               />
-              {errors.description && (
-                <p className="text-sm text-red-500">{errors.description}</p>
-              )}
+              {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
             </div>
           </div>
 

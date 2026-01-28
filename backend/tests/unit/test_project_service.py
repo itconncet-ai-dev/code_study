@@ -23,7 +23,7 @@ Test Coverage:
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -44,10 +44,7 @@ class TestProjectServiceCreate:
 
         user_id = uuid.uuid4()
         service = ProjectService(mock_session)
-        project = await service.create(
-            user_id=user_id,
-            title="My First Project"
-        )
+        project = await service.create(user_id=user_id, title="My First Project")
 
         assert project is not None
         assert project.title == "My First Project"
@@ -68,9 +65,7 @@ class TestProjectServiceCreate:
         user_id = uuid.uuid4()
         service = ProjectService(mock_session)
         project = await service.create(
-            user_id=user_id,
-            title="My Project",
-            description="Learning Python basics"
+            user_id=user_id, title="My Project", description="Learning Python basics"
         )
 
         assert project.description == "Learning Python basics"
@@ -86,10 +81,7 @@ class TestProjectServiceCreate:
         mock_session.refresh = AsyncMock()
 
         service = ProjectService(mock_session)
-        project = await service.create(
-            user_id=uuid.uuid4(),
-            title="New Project"
-        )
+        project = await service.create(user_id=uuid.uuid4(), title="New Project")
 
         assert project.deletion_status == "active"
         assert project.trashed_at is None
@@ -105,10 +97,7 @@ class TestProjectServiceCreate:
         service = ProjectService(mock_session)
 
         with pytest.raises(ValidationError) as exc_info:
-            await service.create(
-                user_id=uuid.uuid4(),
-                title=""
-            )
+            await service.create(user_id=uuid.uuid4(), title="")
 
         assert "title" in str(exc_info.value.detail).lower()
 
@@ -122,10 +111,7 @@ class TestProjectServiceCreate:
         service = ProjectService(mock_session)
 
         with pytest.raises(ValidationError) as exc_info:
-            await service.create(
-                user_id=uuid.uuid4(),
-                title=None
-            )
+            await service.create(user_id=uuid.uuid4(), title=None)
 
         assert "title" in str(exc_info.value.detail).lower()
 
@@ -143,11 +129,7 @@ class TestProjectServiceGetById:
 
         user_id = uuid.uuid4()
         project_id = uuid.uuid4()
-        existing_project = Project(
-            id=project_id,
-            user_id=user_id,
-            title="Test Project"
-        )
+        existing_project = Project(id=project_id, user_id=user_id, title="Test Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -193,9 +175,7 @@ class TestProjectServiceGetById:
         project_id = uuid.uuid4()
 
         existing_project = Project(
-            id=project_id,
-            user_id=owner_id,
-            title="Test Project"
+            id=project_id, user_id=owner_id, title="Test Project"
         )
 
         mock_result = AsyncMock()
@@ -222,7 +202,7 @@ class TestProjectServiceGetById:
             id=project_id,
             user_id=user_id,
             title="Trashed Project",
-            deletion_status="trashed"
+            deletion_status="trashed",
         )
 
         mock_result = AsyncMock()
@@ -248,7 +228,7 @@ class TestProjectServiceGetById:
             id=project_id,
             user_id=user_id,
             title="Trashed Project",
-            deletion_status="trashed"
+            deletion_status="trashed",
         )
 
         mock_result = AsyncMock()
@@ -311,7 +291,7 @@ class TestProjectServiceGetUserProjects:
         mock_session.execute = AsyncMock(return_value=mock_result)
 
         service = ProjectService(mock_session)
-        result = await service.get_user_projects(user_id)
+        await service.get_user_projects(user_id)
 
         # The query should filter by deletion_status='active'
         # We verify by checking the call was made
@@ -328,7 +308,12 @@ class TestProjectServiceGetUserProjects:
         user_id = uuid.uuid4()
         all_projects = [
             Project(id=uuid.uuid4(), user_id=user_id, title="Active Project"),
-            Project(id=uuid.uuid4(), user_id=user_id, title="Trashed Project", deletion_status="trashed"),
+            Project(
+                id=uuid.uuid4(),
+                user_id=user_id,
+                title="Trashed Project",
+                deletion_status="trashed",
+            ),
         ]
 
         mock_result = AsyncMock()
@@ -374,11 +359,7 @@ class TestProjectServiceUpdate:
 
         user_id = uuid.uuid4()
         project_id = uuid.uuid4()
-        existing_project = Project(
-            id=project_id,
-            user_id=user_id,
-            title="Old Title"
-        )
+        existing_project = Project(id=project_id, user_id=user_id, title="Old Title")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -386,9 +367,7 @@ class TestProjectServiceUpdate:
 
         service = ProjectService(mock_session)
         updated = await service.update(
-            project_id=project_id,
-            user_id=user_id,
-            title="New Title"
+            project_id=project_id, user_id=user_id, title="New Title"
         )
 
         assert updated.title == "New Title"
@@ -410,7 +389,7 @@ class TestProjectServiceUpdate:
             id=project_id,
             user_id=user_id,
             title="Project",
-            description="Old description"
+            description="Old description",
         )
 
         mock_result = AsyncMock()
@@ -419,9 +398,7 @@ class TestProjectServiceUpdate:
 
         service = ProjectService(mock_session)
         updated = await service.update(
-            project_id=project_id,
-            user_id=user_id,
-            description="New description"
+            project_id=project_id, user_id=user_id, description="New description"
         )
 
         assert updated.description == "New description"
@@ -442,9 +419,7 @@ class TestProjectServiceUpdate:
 
         with pytest.raises(NotFoundError):
             await service.update(
-                project_id=uuid.uuid4(),
-                user_id=uuid.uuid4(),
-                title="New Title"
+                project_id=uuid.uuid4(), user_id=uuid.uuid4(), title="New Title"
             )
 
     @pytest.mark.asyncio
@@ -460,11 +435,7 @@ class TestProjectServiceUpdate:
         different_user_id = uuid.uuid4()
         project_id = uuid.uuid4()
 
-        existing_project = Project(
-            id=project_id,
-            user_id=owner_id,
-            title="Project"
-        )
+        existing_project = Project(id=project_id, user_id=owner_id, title="Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -474,9 +445,7 @@ class TestProjectServiceUpdate:
 
         with pytest.raises(ForbiddenError):
             await service.update(
-                project_id=project_id,
-                user_id=different_user_id,
-                title="New Title"
+                project_id=project_id, user_id=different_user_id, title="New Title"
             )
 
     @pytest.mark.asyncio
@@ -490,11 +459,7 @@ class TestProjectServiceUpdate:
 
         user_id = uuid.uuid4()
         project_id = uuid.uuid4()
-        existing_project = Project(
-            id=project_id,
-            user_id=user_id,
-            title="Project"
-        )
+        existing_project = Project(id=project_id, user_id=user_id, title="Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -503,11 +468,7 @@ class TestProjectServiceUpdate:
         service = ProjectService(mock_session)
 
         with pytest.raises(ValidationError):
-            await service.update(
-                project_id=project_id,
-                user_id=user_id,
-                title=""
-            )
+            await service.update(project_id=project_id, user_id=user_id, title="")
 
 
 class TestProjectServiceSoftDelete:
@@ -524,11 +485,7 @@ class TestProjectServiceSoftDelete:
 
         user_id = uuid.uuid4()
         project_id = uuid.uuid4()
-        existing_project = Project(
-            id=project_id,
-            user_id=user_id,
-            title="Project"
-        )
+        existing_project = Project(id=project_id, user_id=user_id, title="Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -552,11 +509,7 @@ class TestProjectServiceSoftDelete:
 
         user_id = uuid.uuid4()
         project_id = uuid.uuid4()
-        existing_project = Project(
-            id=project_id,
-            user_id=user_id,
-            title="Project"
-        )
+        existing_project = Project(id=project_id, user_id=user_id, title="Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -567,11 +520,18 @@ class TestProjectServiceSoftDelete:
 
         assert existing_project.scheduled_deletion_at is not None
         # Should be approximately 30 days from now
-        expected_deletion = datetime.now(timezone.utc) + timedelta(days=30)
+        expected_deletion = datetime.now(UTC) + timedelta(days=30)
         actual_deletion = existing_project.scheduled_deletion_at
 
         # Allow 1 minute difference for test execution time
-        assert abs((actual_deletion.replace(tzinfo=timezone.utc) - expected_deletion).total_seconds()) < 60
+        assert (
+            abs(
+                (
+                    actual_deletion.replace(tzinfo=UTC) - expected_deletion
+                ).total_seconds()
+            )
+            < 60
+        )
 
     @pytest.mark.asyncio
     async def test_soft_delete_raises_not_found_for_unknown_id(self):
@@ -603,11 +563,7 @@ class TestProjectServiceSoftDelete:
         different_user_id = uuid.uuid4()
         project_id = uuid.uuid4()
 
-        existing_project = Project(
-            id=project_id,
-            user_id=owner_id,
-            title="Project"
-        )
+        existing_project = Project(id=project_id, user_id=owner_id, title="Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -633,7 +589,7 @@ class TestProjectServiceSoftDelete:
             id=project_id,
             user_id=user_id,
             title="Trashed Project",
-            deletion_status="trashed"
+            deletion_status="trashed",
         )
 
         mock_result = AsyncMock()
@@ -659,11 +615,7 @@ class TestProjectServiceValidateOwnership:
 
         user_id = uuid.uuid4()
         project_id = uuid.uuid4()
-        existing_project = Project(
-            id=project_id,
-            user_id=user_id,
-            title="Test Project"
-        )
+        existing_project = Project(id=project_id, user_id=user_id, title="Test Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)
@@ -709,9 +661,7 @@ class TestProjectServiceValidateOwnership:
         project_id = uuid.uuid4()
 
         existing_project = Project(
-            id=project_id,
-            user_id=owner_id,
-            title="Test Project"
+            id=project_id, user_id=owner_id, title="Test Project"
         )
 
         mock_result = AsyncMock()
@@ -740,7 +690,7 @@ class TestProjectServiceValidateOwnership:
             id=project_id,
             user_id=user_id,
             title="Trashed Project",
-            deletion_status="trashed"
+            deletion_status="trashed",
         )
 
         mock_result = AsyncMock()
@@ -766,7 +716,7 @@ class TestProjectServiceValidateOwnership:
             id=project_id,
             user_id=user_id,
             title="Trashed Project",
-            deletion_status="trashed"
+            deletion_status="trashed",
         )
 
         mock_result = AsyncMock()
@@ -774,7 +724,9 @@ class TestProjectServiceValidateOwnership:
         mock_session.execute = AsyncMock(return_value=mock_result)
 
         service = ProjectService(mock_session)
-        project = await service.validate_ownership(project_id, user_id, include_trashed=True)
+        project = await service.validate_ownership(
+            project_id, user_id, include_trashed=True
+        )
 
         assert project is not None
         assert project.deletion_status == "trashed"
@@ -789,11 +741,7 @@ class TestProjectServiceValidateOwnership:
 
         user_id = uuid.uuid4()
         project_id = uuid.uuid4()
-        existing_project = Project(
-            id=project_id,
-            user_id=user_id,
-            title="Test Project"
-        )
+        existing_project = Project(id=project_id, user_id=user_id, title="Test Project")
 
         mock_result = AsyncMock()
         mock_result.scalar_one_or_none = MagicMock(return_value=existing_project)

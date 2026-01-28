@@ -71,8 +71,7 @@ export class ApiClientError extends Error {
 /**
  * API base URL from environment or default to localhost development server.
  */
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
 
 /**
  * Flag to track if a token refresh is in progress.
@@ -107,11 +106,7 @@ function notifyRefreshSubscribers(success: boolean): void {
  */
 async function refreshAccessToken(): Promise<boolean> {
   try {
-    await axios.post(
-      `${API_BASE_URL}/auth/refresh`,
-      {},
-      { withCredentials: true }
-    )
+    await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true })
     return true
   } catch {
     return false
@@ -208,10 +203,7 @@ export const apiClient = createApiClient()
 /**
  * Type-safe GET request.
  */
-export async function get<T>(
-  url: string,
-  config?: AxiosRequestConfig
-): Promise<T> {
+export async function get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
   const response = await apiClient.get<T>(url, config)
   return response.data
 }
@@ -255,10 +247,7 @@ export async function put<T, D = unknown>(
 /**
  * Type-safe DELETE request.
  */
-export async function del<T = void>(
-  url: string,
-  config?: AxiosRequestConfig
-): Promise<T> {
+export async function del<T = void>(url: string, config?: AxiosRequestConfig): Promise<T> {
   const response = await apiClient.delete<T>(url, config)
   return response.data
 }

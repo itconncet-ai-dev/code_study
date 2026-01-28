@@ -12,11 +12,9 @@ Task: T065 - Implement language detection service using Pygments
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
 
 from pygments.lexers import (
     ClassNotFound,
-    get_lexer_by_name,
     get_lexer_for_filename,
     guess_lexer,
 )
@@ -40,7 +38,7 @@ class LanguageInfo:
     """Method used: 'extension' or 'content_analysis'"""
 
     @classmethod
-    def unknown(cls) -> "LanguageInfo":
+    def unknown(cls) -> LanguageInfo:
         """Create an unknown language result."""
         return cls(
             language="Unknown",
@@ -198,7 +196,9 @@ class LanguageDetector:
                     return LanguageInfo(
                         language=cls._normalize_language_name(lexer.name),
                         confidence=0.9,
-                        lexer_name=lexer.aliases[0] if lexer.aliases else lexer.name.lower(),
+                        lexer_name=(
+                            lexer.aliases[0] if lexer.aliases else lexer.name.lower()
+                        ),
                         detection_method="content_analysis",
                     )
                 except ClassNotFound:
@@ -331,7 +331,7 @@ class LanguageDetector:
         import re
 
         lines = content.split("\n")
-        content_lower = content.lower()
+        content.lower()
 
         # Check shebang first
         if lines and lines[0].startswith("#!"):
@@ -360,69 +360,69 @@ class LanguageDetector:
 
         # Python-specific patterns
         python_patterns = [
-            r'\bdef\s+\w+\s*\([^)]*\)\s*(?:->|:)',  # def func(...) -> or :
-            r'\bclass\s+\w+\s*(?:\([^)]*\))?\s*:',  # class Name(...)
-            r'^\s*import\s+\w+',                     # import statement
-            r'^\s*from\s+\w+\s+import',              # from x import
+            r"\bdef\s+\w+\s*\([^)]*\)\s*(?:->|:)",  # def func(...) -> or :
+            r"\bclass\s+\w+\s*(?:\([^)]*\))?\s*:",  # class Name(...)
+            r"^\s*import\s+\w+",  # import statement
+            r"^\s*from\s+\w+\s+import",  # from x import
             r'if\s+__name__\s*==\s*["\']__main__["\']',  # main guard
-            r'self\.\w+',                            # self.attribute
-            r'""".*?"""',                            # docstrings
+            r"self\.\w+",  # self.attribute
+            r'""".*?"""',  # docstrings
         ]
 
         # JavaScript-specific patterns
         js_patterns = [
-            r'\bconst\s+\w+\s*=',                    # const declaration
-            r'\blet\s+\w+\s*=',                      # let declaration
-            r'\bvar\s+\w+\s*=',                      # var declaration
-            r'=>\s*[{\(]',                           # arrow functions
-            r'function\s+\w*\s*\([^)]*\)\s*{',       # function declaration
-            r'\bconsole\.(log|error|warn)',          # console methods
-            r'\.forEach\s*\(',                       # Array methods
-            r'\.map\s*\([^)]*=>',                    # Array map with arrow
-            r'\.reduce\s*\(',                        # Array reduce
-            r'\.filter\s*\(',                        # Array filter
-            r'require\s*\(["\']',                    # require()
-            r'module\.exports',                      # CommonJS exports
-            r'export\s+(default|const|function|class)',  # ES6 exports
-            r'import\s+.*\s+from\s+["\']',          # ES6 imports
+            r"\bconst\s+\w+\s*=",  # const declaration
+            r"\blet\s+\w+\s*=",  # let declaration
+            r"\bvar\s+\w+\s*=",  # var declaration
+            r"=>\s*[{\(]",  # arrow functions
+            r"function\s+\w*\s*\([^)]*\)\s*{",  # function declaration
+            r"\bconsole\.(log|error|warn)",  # console methods
+            r"\.forEach\s*\(",  # Array methods
+            r"\.map\s*\([^)]*=>",  # Array map with arrow
+            r"\.reduce\s*\(",  # Array reduce
+            r"\.filter\s*\(",  # Array filter
+            r'require\s*\(["\']',  # require()
+            r"module\.exports",  # CommonJS exports
+            r"export\s+(default|const|function|class)",  # ES6 exports
+            r'import\s+.*\s+from\s+["\']',  # ES6 imports
         ]
 
         # TypeScript-specific patterns
         ts_patterns = [
-            r':\s*(string|number|boolean|void|any|unknown|never)\b',
-            r'interface\s+\w+\s*{',
-            r'type\s+\w+\s*=',
-            r'<\w+(\s*,\s*\w+)*>',                   # Generics
-            r'as\s+(string|number|boolean|any)',    # Type assertions
+            r":\s*(string|number|boolean|void|any|unknown|never)\b",
+            r"interface\s+\w+\s*{",
+            r"type\s+\w+\s*=",
+            r"<\w+(\s*,\s*\w+)*>",  # Generics
+            r"as\s+(string|number|boolean|any)",  # Type assertions
         ]
 
         # Java-specific patterns
         java_patterns = [
-            r'public\s+class\s+\w+',
-            r'public\s+static\s+void\s+main',
-            r'System\.out\.print',
-            r'private\s+(static\s+)?(final\s+)?\w+\s+\w+',
-            r'@Override',
-            r'package\s+[\w.]+;',
+            r"public\s+class\s+\w+",
+            r"public\s+static\s+void\s+main",
+            r"System\.out\.print",
+            r"private\s+(static\s+)?(final\s+)?\w+\s+\w+",
+            r"@Override",
+            r"package\s+[\w.]+;",
         ]
 
         # C-specific patterns
         c_patterns = [
-            r'#include\s*<\w+\.h>',
-            r'int\s+main\s*\([^)]*\)',
-            r'printf\s*\(',
-            r'malloc\s*\(',
-            r'sizeof\s*\(',
+            r"#include\s*<\w+\.h>",
+            r"int\s+main\s*\([^)]*\)",
+            r"printf\s*\(",
+            r"malloc\s*\(",
+            r"sizeof\s*\(",
         ]
 
         # C++-specific patterns
         cpp_patterns = [
-            r'#include\s*<iostream>',
-            r'std::cout',
-            r'std::cin',
-            r'std::string',
-            r'namespace\s+\w+',
-            r'template\s*<',
+            r"#include\s*<iostream>",
+            r"std::cout",
+            r"std::cin",
+            r"std::string",
+            r"namespace\s+\w+",
+            r"template\s*<",
         ]
 
         # Count pattern matches for each language
@@ -473,7 +473,7 @@ class LanguageDetector:
         return None
 
     @classmethod
-    def _calculate_content_confidence(cls, content: str, lexer) -> float:
+    def _calculate_content_confidence(cls, content: str, _lexer) -> float:
         """
         Calculate confidence score for content-based detection.
 
@@ -496,11 +496,12 @@ class LanguageDetector:
         # Boost for shebang line
         if lines and lines[0].startswith("#!"):
             shebang = lines[0].lower()
-            if "python" in shebang:
-                confidence += 0.3
-            elif "node" in shebang or "javascript" in shebang:
-                confidence += 0.3
-            elif any(shell in shebang for shell in ["bash", "sh", "zsh"]):
+            if (
+                "python" in shebang
+                or "node" in shebang
+                or "javascript" in shebang
+                or any(shell in shebang for shell in ["bash", "sh", "zsh"])
+            ):
                 confidence += 0.3
             else:
                 confidence += 0.1

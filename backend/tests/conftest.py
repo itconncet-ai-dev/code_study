@@ -4,13 +4,11 @@ Pytest Configuration and Fixtures
 This module provides shared fixtures for all tests in the Code Learning Platform backend.
 """
 
-import asyncio
-from collections.abc import AsyncGenerator, Generator
+import contextlib
+from collections.abc import AsyncGenerator
 from typing import Any
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-
 
 # pytest-asyncio automatically manages event loop in latest versions
 # No need to manually create event_loop fixture
@@ -25,7 +23,6 @@ async def db_session() -> AsyncGenerator[Any, None]:
     Creates a new session for each test and rolls back changes
     after the test completes to ensure test isolation.
     """
-    from sqlalchemy.ext.asyncio import AsyncSession
 
     from src.db.session import async_session_factory
 
@@ -33,10 +30,8 @@ async def db_session() -> AsyncGenerator[Any, None]:
         try:
             yield session
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 await session.rollback()
-            except Exception:
-                pass
 
 
 # Test client fixture will be added when main.py is configured (T014)

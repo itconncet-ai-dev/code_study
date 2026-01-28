@@ -35,18 +35,14 @@ export function TaskCard({ task }: TaskCardProps) {
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm font-medium text-gray-500">
-                  작업 #{task.task_number}
-                </span>
+                <span className="text-sm font-medium text-gray-500">작업 #{task.task_number}</span>
                 <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                   <Icon className="h-3 w-3" />
                   {UPLOAD_METHOD_LABELS[task.upload_method]}
                 </span>
               </div>
               <CardTitle className="text-lg">{task.title}</CardTitle>
-              {task.description && (
-                <p className="text-sm text-gray-600 mt-2">{task.description}</p>
-              )}
+              {task.description && <p className="text-sm text-gray-600 mt-2">{task.description}</p>}
             </div>
           </div>
         </CardHeader>

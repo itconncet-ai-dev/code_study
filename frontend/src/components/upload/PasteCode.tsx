@@ -75,9 +75,7 @@ export function PasteCode({ onCodeChange, onLanguageChange }: PasteCodeProps) {
       <div>
         <div className="flex justify-between items-center mb-1">
           <Label htmlFor="code-textarea">코드를 입력하세요</Label>
-          <span className="text-sm text-gray-500">
-            {code.length.toLocaleString()} 문자
-          </span>
+          <span className="text-sm text-gray-500">{code.length.toLocaleString()} 문자</span>
         </div>
         <textarea
           id="code-textarea"
@@ -90,9 +88,7 @@ export function PasteCode({ onCodeChange, onLanguageChange }: PasteCodeProps) {
       </div>
 
       {/* Error Message */}
-      {error && (
-        <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{error}</div>
-      )}
+      {error && <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{error}</div>}
 
       {/* Info and Actions */}
       <div className="flex justify-between items-center">

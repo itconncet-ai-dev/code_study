@@ -6,9 +6,7 @@ Tests cover async engine creation, session lifecycle, and FastAPI dependency inj
 """
 
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
-from sqlalchemy.pool import AsyncAdaptedQueuePool
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 
 class TestDatabaseSession:

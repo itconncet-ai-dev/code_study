@@ -17,7 +17,7 @@ Reference: data-model.md §RefreshToken entity
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
@@ -38,7 +38,7 @@ class TestRefreshTokenModel:
         """RefreshToken should have a UUID primary key field."""
         from src.models.refresh_token import RefreshToken
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=uuid.uuid4(),
             token_hash="sha256_hash_value_here_for_testing",
@@ -54,7 +54,7 @@ class TestRefreshTokenModel:
 
         # Creating token without user_id should work at Python level
         # but fail on database constraint
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             token_hash="test_hash",
             expires_at=expires_at,
@@ -67,7 +67,7 @@ class TestRefreshTokenModel:
         """RefreshToken token_hash field should be required."""
         from src.models.refresh_token import RefreshToken
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=uuid.uuid4(),
             expires_at=expires_at,
@@ -92,7 +92,7 @@ class TestRefreshTokenModel:
         """RefreshToken revoked should default to False."""
         from src.models.refresh_token import RefreshToken
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=uuid.uuid4(),
             token_hash="test_hash",
@@ -105,7 +105,7 @@ class TestRefreshTokenModel:
         """RefreshToken revoked_at should be nullable."""
         from src.models.refresh_token import RefreshToken
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=uuid.uuid4(),
             token_hash="test_hash",
@@ -164,7 +164,7 @@ class TestRefreshTokenModelDatabase:
         await db_session.refresh(user)
 
         # Create refresh token
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=user.id,
             token_hash="sha256_unique_hash_for_db_test",
@@ -204,7 +204,7 @@ class TestRefreshTokenModelDatabase:
         await db_session.commit()
         await db_session.refresh(user)
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
 
         token1 = RefreshToken(
             user_id=user.id,
@@ -229,7 +229,7 @@ class TestRefreshTokenModelDatabase:
         from src.models.refresh_token import RefreshToken
 
         # Create token with non-existent user_id
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=uuid.uuid4(),  # Non-existent user
             token_hash="orphan_token_hash",
@@ -254,7 +254,7 @@ class TestRefreshTokenModelDatabase:
         await db_session.commit()
         await db_session.refresh(user)
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=user.id,
             token_hash="cascade_test_hash",
@@ -287,7 +287,7 @@ class TestRefreshTokenModelDatabase:
         await db_session.commit()
         await db_session.refresh(user)
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=user.id,
             token_hash="timestamp_test_hash",
@@ -314,7 +314,7 @@ class TestRefreshTokenModelDatabase:
         await db_session.commit()
         await db_session.refresh(user)
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=user.id,
             token_hash="revoke_test_hash",
@@ -327,7 +327,7 @@ class TestRefreshTokenModelDatabase:
 
         # Revoke the token
         token.revoked = True
-        token.revoked_at = datetime.now(timezone.utc)
+        token.revoked_at = datetime.now(UTC)
         await db_session.commit()
         await db_session.refresh(token)
 
@@ -338,7 +338,7 @@ class TestRefreshTokenModelDatabase:
         """user_id should have NOT NULL constraint at database level."""
         from src.models.refresh_token import RefreshToken
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             token_hash="no_user_hash",
             expires_at=expires_at,
@@ -361,7 +361,7 @@ class TestRefreshTokenModelDatabase:
         await db_session.commit()
         await db_session.refresh(user)
 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
         token = RefreshToken(
             user_id=user.id,
             expires_at=expires_at,

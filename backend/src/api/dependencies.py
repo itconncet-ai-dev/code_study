@@ -47,7 +47,6 @@ from src.db.session import get_db
 from src.models.user import User
 from src.services.auth.token_service import TokenService
 
-
 # =============================================================================
 # OAuth2 Scheme Configuration
 # =============================================================================

@@ -123,26 +123,31 @@ class GeminiError(Exception):
 
 class GeminiAPIError(GeminiError):
     """API-level error from Gemini service."""
+
     pass
 
 
 class GeminiRateLimitError(GeminiError):
     """Rate limit exceeded error."""
+
     pass
 
 
 class GeminiTimeoutError(GeminiError):
     """Request timeout error."""
+
     pass
 
 
 class GeminiContentBlockedError(GeminiError):
     """Content was blocked by safety filters."""
+
     pass
 
 
 class GeminiInvalidResponseError(GeminiError):
     """Invalid or malformed response from API."""
+
     pass
 
 
@@ -186,9 +191,7 @@ class GeminiClient:
     def _configure_api(self) -> None:
         """Configure the Gemini API with API key."""
         genai.configure(api_key=self.settings.gemini_api_key)
-        logger.info(
-            f"Gemini API configured with model: {self.settings.gemini_model}"
-        )
+        logger.info(f"Gemini API configured with model: {self.settings.gemini_model}")
 
     @property
     def model(self) -> genai.GenerativeModel:
@@ -323,7 +326,7 @@ class GeminiClient:
 
                 return self._extract_response_text(response)
 
-            except asyncio.TimeoutError as e:
+            except TimeoutError as e:
                 last_error = e
                 logger.warning(
                     f"Gemini API timeout (attempt {attempt + 1}): {timeout}s exceeded"
@@ -349,15 +352,11 @@ class GeminiClient:
 
             except google_exceptions.InvalidArgument as e:
                 logger.error(f"Gemini API invalid argument: {str(e)}")
-                raise GeminiAPIError(
-                    f"Invalid request to Gemini API: {str(e)}", e
-                )
+                raise GeminiAPIError(f"Invalid request to Gemini API: {str(e)}", e)
 
             except google_exceptions.GoogleAPIError as e:
                 last_error = e
-                logger.warning(
-                    f"Gemini API error (attempt {attempt + 1}): {str(e)}"
-                )
+                logger.warning(f"Gemini API error (attempt {attempt + 1}): {str(e)}")
                 if attempt < self.settings.gemini_max_retries:
                     await self._wait_with_backoff(delay, attempt)
                     delay = min(

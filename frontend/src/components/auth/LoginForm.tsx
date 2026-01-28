@@ -71,10 +71,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* API Error Display */}
       {error && (
-        <div
-          className="rounded-md bg-destructive/15 p-3 text-sm text-destructive"
-          role="alert"
-        >
+        <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive" role="alert">
           {error}
         </div>
       )}
@@ -103,10 +100,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
-          <Link
-            to="/forgot-password"
-            className="text-sm text-primary hover:underline"
-          >
+          <Link to="/forgot-password" className="text-sm text-primary hover:underline">
             Forgot password?
           </Link>
         </div>

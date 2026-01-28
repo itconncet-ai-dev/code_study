@@ -90,7 +90,9 @@ class TestCelerySettings:
             _env_file=None,
         )
 
-        assert settings.result_backend_url == "redis://:secret123@redis.example.com:6380/2"
+        assert (
+            settings.result_backend_url == "redis://:secret123@redis.example.com:6380/2"
+        )
 
     def test_result_backend_url_from_env_variable(self):
         """Test result backend URL uses explicit CELERY_RESULT_BACKEND when set."""
@@ -145,7 +147,7 @@ class TestCeleryAppConfiguration:
         assert celery_app is not None
         assert celery_app.main == "code_learning_tasks"
 
-    def test_celery_app_broker_configured(self, celery_app):
+    def test_celery_app_broker_configured(self, _celery_app):
         """Test Celery app has broker URL configured."""
         settings = get_celery_settings()
         # The broker URL should contain redis://
@@ -167,7 +169,9 @@ class TestCeleryAppConfiguration:
         settings = get_celery_settings()
         assert celery_app.conf.task_time_limit == settings.celery_task_time_limit
         # Soft limit should be 30 seconds less than hard limit
-        assert celery_app.conf.task_soft_time_limit == settings.celery_task_time_limit - 30
+        assert (
+            celery_app.conf.task_soft_time_limit == settings.celery_task_time_limit - 30
+        )
 
     def test_celery_app_result_expiration(self, celery_app):
         """Test Celery app has result expiration configured."""
@@ -192,7 +196,10 @@ class TestCeleryAppConfiguration:
     def test_celery_app_worker_settings(self, celery_app):
         """Test Celery app has worker settings configured."""
         settings = get_celery_settings()
-        assert celery_app.conf.worker_prefetch_multiplier == settings.celery_worker_prefetch_multiplier
+        assert (
+            celery_app.conf.worker_prefetch_multiplier
+            == settings.celery_worker_prefetch_multiplier
+        )
         assert celery_app.conf.worker_max_tasks_per_child == 1000
 
     def test_celery_app_task_acknowledgement(self, celery_app):
