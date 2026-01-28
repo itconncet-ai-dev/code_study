@@ -1,0 +1,139 @@
+# Alembic Migrations - AI Code Learning Platform
+
+This directory contains database migrations for the AI Code Learning Platform.
+
+## Directory Structure
+
+```
+alembic/
+├── env.py              # Migration environment configuration
+├── script.py.mako      # Migration script template
+├── README              # This file
+└── versions/           # Migration files (auto-generated)
+    └── *.py            # Individual migration scripts
+```
+
+## Quick Reference
+
+### Create a New Migration
+
+Auto-generate migration from model changes:
+```bash
+cd backend
+alembic revision --autogenerate -m "Description of changes"
+```
+
+Create an empty migration for manual edits:
+```bash
+cd backend
+alembic revision -m "Description of changes"
+```
+
+### Apply Migrations
+
+Apply all pending migrations:
+```bash
+cd backend
+alembic upgrade head
+```
+
+Apply one migration at a time:
+```bash
+cd backend
+alembic upgrade +1
+```
+
+### Rollback Migrations
+
+Rollback the last migration:
+```bash
+cd backend
+alembic downgrade -1
+```
+
+Rollback to a specific revision:
+```bash
+cd backend
+alembic downgrade <revision_id>
+```
+
+Rollback all migrations:
+```bash
+cd backend
+alembic downgrade base
+```
+
+### View Migration Status
+
+Show current revision:
+```bash
+cd backend
+alembic current
+```
+
+Show migration history:
+```bash
+cd backend
+alembic history
+```
+
+Show pending migrations:
+```bash
+cd backend
+alembic heads
+```
+
+### Generate SQL (Offline Mode)
+
+Generate SQL without applying to database:
+```bash
+cd backend
+alembic upgrade head --sql > migration.sql
+```
+
+## Best Practices
+
+1. **Review Auto-Generated Migrations**: Always review migrations created
+   with `--autogenerate`. They may not capture all changes perfectly.
+
+2. **Write Reversible Migrations**: Ensure every `upgrade()` has a
+   corresponding `downgrade()` that fully reverses the changes.
+
+3. **Test Migrations**: Test both upgrade and downgrade paths before
+   deploying to production.
+
+4. **Descriptive Messages**: Use clear, descriptive messages when
+   creating migrations (e.g., "add user email verification columns").
+
+5. **One Change Per Migration**: Keep migrations focused on a single
+   logical change for easier rollback and debugging.
+
+6. **Data Migrations**: For data migrations, consider using separate
+   migration files to keep schema and data changes distinct.
+
+## Configuration
+
+- Database URL: Loaded from `DATABASE_URL` environment variable
+- Pool Configuration: See `alembic.ini` for connection pool settings
+- Logging: Configure in `alembic.ini` under `[loggers]` section
+
+## Troubleshooting
+
+**Error: "Target database is not up to date"**
+```bash
+alembic stamp head  # Mark database as current (use carefully!)
+```
+
+**Error: "Can't locate revision"**
+```bash
+alembic history --verbose  # View detailed history
+alembic current            # Check current database revision
+```
+
+**Reset migrations (DEVELOPMENT ONLY)**
+```bash
+alembic downgrade base     # Rollback all migrations
+# Delete all files in versions/ except .gitkeep
+alembic revision --autogenerate -m "Initial schema"
+alembic upgrade head
+```

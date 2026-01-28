@@ -1,0 +1,1050 @@
+openapi: 3.0.3
+info:
+  title: AI Code Learning Platform API
+  description: |
+    REST API for the AI Code Learning Platform - Phase 1 MVP.
+
+    This platform transforms AI-generated code into beginner-friendly learning materials
+    through task-based code uploads, automatic analysis, document generation, and Q&A.
+
+    Powered by Google Gemini 3 Flash Preview for fast, cost-effective AI content generation.
+
+    **Authentication**: JWT-based with HTTPOnly cookies
+    **Base URL**: `/api/v1`
+  version: 1.0.0
+  contact:
+    name: API Support
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development server
+  - url: https://api.codelearning.com/api/v1
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User registration, login, logout
+  - name: Projects
+    description: Project CRUD operations
+  - name: Tasks
+    description: Task management and code upload
+  - name: Documents
+    description: Learning document retrieval
+  - name: Practice
+    description: Practice problems
+  - name: Q&A
+    description: Question and answer system
+  - name: Progress
+    description: Learning progress tracking
+  - name: Trash
+    description: Soft-deleted items management
+
+paths:
+  # ==================== Authentication ====================
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      description: Create a new user account with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: SecurePass123!
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input (email format, password requirements)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login user
+      description: Authenticate user and return JWT tokens in HTTPOnly cookies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: HTTPOnly cookies with access_token and refresh_token
+              schema:
+                type: string
+                example: access_token=...; HttpOnly; Secure; SameSite=Strict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout user
+      description: Revoke refresh token and clear cookies
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          description: Logout successful
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Get new access token using refresh token
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Token refreshed
+          headers:
+            Set-Cookie:
+              description: New access_token cookie
+              schema:
+                type: string
+        '401':
+          description: Invalid or expired refresh token
+
+  # ==================== Projects ====================
+  /projects:
+    get:
+      tags: [Projects]
+      summary: List user's projects
+      description: Get all active (non-trashed) projects for authenticated user
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: include_trashed
+          in: query
+          description: Include trashed projects
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  total:
+                    type: integer
+                    example: 5
+
+    post:
+      tags: [Projects]
+      summary: Create new project
+      description: Create a new learning project container
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: My First Calculator
+                description:
+                  type: string
+                  nullable: true
+                  example: Learning to build a calculator with AI help
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: Invalid input
+        '401':
+          description: Not authenticated
+
+  /projects/{project_id}:
+    get:
+      tags: [Projects]
+      summary: Get project details
+      description: Get single project with task summary
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetail'
+        '404':
+          description: Project not found
+
+    patch:
+      tags: [Projects]
+      summary: Update project
+      description: Update project title or description
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+    delete:
+      tags: [Projects]
+      summary: Soft delete project
+      description: Move project and all tasks to trash (30-day retention)
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '204':
+          description: Project moved to trash
+        '404':
+          description: Project not found
+
+  # ==================== Tasks ====================
+  /projects/{project_id}/tasks:
+    get:
+      tags: [Tasks]
+      summary: List tasks in project
+      description: Get all tasks in sequential order
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Tasks retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  total:
+                    type: integer
+
+    post:
+      tags: [Tasks]
+      summary: Create new task
+      description: Create task and upload code (auto-assigns sequential task number)
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, upload_method]
+              properties:
+                title:
+                  type: string
+                  minLength: 5
+                  maxLength: 255
+                  example: Addition Function
+                description:
+                  type: string
+                  maxLength: 500
+                  example: Building a basic addition function
+                upload_method:
+                  type: string
+                  enum: [file, folder, paste]
+                  example: file
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  maxItems: 20
+                  description: Files to upload (for file/folder method)
+                code_text:
+                  type: string
+                  description: Pasted code (for paste method)
+                language:
+                  type: string
+                  description: Programming language (required for paste method)
+                  example: python
+      responses:
+        '201':
+          description: Task created and code uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid input or file validation failed
+        '413':
+          description: Upload size exceeds 10MB limit
+
+  /tasks/{task_id}:
+    get:
+      tags: [Tasks]
+      summary: Get task details
+      description: Get task with all associated data (code, document, practice, progress)
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Task retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDetail'
+
+    patch:
+      tags: [Tasks]
+      summary: Update task
+      description: Update task title or description
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Task updated
+
+    delete:
+      tags: [Tasks]
+      summary: Soft delete task
+      description: Move task to trash (30-day retention)
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '204':
+          description: Task moved to trash
+
+  /tasks/{task_id}/code:
+    get:
+      tags: [Tasks]
+      summary: Get uploaded code
+      description: Get code files and metadata for a task
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Code retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadedCode'
+
+  # ==================== Documents ====================
+  /tasks/{task_id}/document:
+    get:
+      tags: [Documents]
+      summary: Get learning document
+      description: Get 7-chapter learning document for task
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Document retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningDocument'
+        '404':
+          description: Document not found (may still be generating)
+
+  /tasks/{task_id}/document/status:
+    get:
+      tags: [Documents]
+      summary: Get document generation status
+      description: Check status of async document generation
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [pending, in_progress, completed, failed]
+                    example: in_progress
+                  estimated_time_remaining:
+                    type: integer
+                    description: Seconds remaining (estimate)
+                    example: 120
+                  error:
+                    type: string
+                    nullable: true
+
+  # ==================== Practice ====================
+  /tasks/{task_id}/practice:
+    get:
+      tags: [Practice]
+      summary: Get practice problems
+      description: Get all 5 practice problems for task
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Practice problems retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  problems:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PracticeProblem'
+                    minItems: 5
+                    maxItems: 5
+
+  /tasks/{task_id}/practice/{problem_number}:
+    get:
+      tags: [Practice]
+      summary: Get single practice problem
+      description: Get specific practice problem (1-5)
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+        - name: problem_number
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+      responses:
+        '200':
+          description: Problem retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeProblem'
+
+  # ==================== Q&A ====================
+  /tasks/{task_id}/questions:
+    get:
+      tags: [Q&A]
+      summary: Get question history
+      description: Get all questions asked for this task
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Questions retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  questions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Question'
+
+    post:
+      tags: [Q&A]
+      summary: Ask question
+      description: Ask a question about the code or document
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question_text]
+              properties:
+                question_text:
+                  type: string
+                  minLength: 3
+                  maxLength: 500
+                  example: What does 'return' mean in simple words?
+                selected_code_context:
+                  type: string
+                  nullable: true
+                  description: Code snippet user selected (max 50 lines)
+      responses:
+        '200':
+          description: Answer generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '400':
+          description: Invalid question length or code context too long
+
+  /questions/{question_id}/feedback:
+    post:
+      tags: [Q&A]
+      summary: Provide feedback on answer
+      description: Mark answer as helpful or not helpful
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: question_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [helpful]
+              properties:
+                helpful:
+                  type: boolean
+      responses:
+        '204':
+          description: Feedback recorded
+
+  # ==================== Progress ====================
+  /tasks/{task_id}/progress:
+    get:
+      tags: [Progress]
+      summary: Get task progress
+      description: Get learning progress for task
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Progress retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Progress'
+
+    patch:
+      tags: [Progress]
+      summary: Update progress
+      description: Mark chapters or practice problems as completed
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chapter_completed:
+                  type: integer
+                  minimum: 1
+                  maximum: 7
+                  description: Mark this chapter as complete
+                problem_completed:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  description: Mark this problem as complete
+                task_completed:
+                  type: boolean
+                  description: Mark entire task as complete
+      responses:
+        '200':
+          description: Progress updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Progress'
+
+  # ==================== Trash ====================
+  /trash:
+    get:
+      tags: [Trash]
+      summary: List trashed items
+      description: Get all projects and tasks in trash
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Trashed items retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+
+  /trash/projects/{project_id}/restore:
+    post:
+      tags: [Trash]
+      summary: Restore project from trash
+      description: Restore project and all its tasks
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project restored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+  /trash/projects/{project_id}/permanent-delete:
+    delete:
+      tags: [Trash]
+      summary: Permanently delete project
+      description: Immediately and permanently delete project (cannot be undone)
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '204':
+          description: Project permanently deleted
+        '404':
+          description: Project not found in trash
+
+  /trash/tasks/{task_id}/restore:
+    post:
+      tags: [Trash]
+      summary: Restore task from trash
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Task restored
+
+  /trash/tasks/{task_id}/permanent-delete:
+    delete:
+      tags: [Trash]
+      summary: Permanently delete task
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '204':
+          description: Task permanently deleted
+
+# ==================== Components ====================
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+      description: JWT access token in HTTPOnly cookie
+
+  parameters:
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    TaskId:
+      name: task_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        skill_level:
+          type: string
+          example: Complete Beginner
+        created_at:
+          type: string
+          format: date-time
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_activity_at:
+          type: string
+          format: date-time
+        deletion_status:
+          type: string
+          enum: [active, trashed]
+        trashed_at:
+          type: string
+          format: date-time
+          nullable: true
+        task_count:
+          type: integer
+          description: Total tasks in project
+        completed_task_count:
+          type: integer
+          description: Completed tasks
+        progress_percentage:
+          type: integer
+          description: Overall project progress (0-100)
+
+    ProjectDetail:
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        task_number:
+          type: integer
+          example: 1
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        upload_method:
+          type: string
+          enum: [file, folder, paste]
+        created_at:
+          type: string
+          format: date-time
+        deletion_status:
+          type: string
+          enum: [active, trashed]
+        document_status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+          description: Learning document generation status
+
+    TaskDetail:
+      allOf:
+        - $ref: '#/components/schemas/Task'
+        - type: object
+          properties:
+            code:
+              $ref: '#/components/schemas/UploadedCode'
+            document:
+              $ref: '#/components/schemas/LearningDocument'
+              nullable: true
+            practice_problems:
+              type: array
+              items:
+                $ref: '#/components/schemas/PracticeProblem'
+            progress:
+              $ref: '#/components/schemas/Progress'
+
+    UploadedCode:
+      type: object
+      properties:
+        detected_language:
+          type: string
+          example: python
+        complexity_level:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        total_lines:
+          type: integer
+        total_files:
+          type: integer
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/CodeFile'
+
+    CodeFile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        file_name:
+          type: string
+          example: calculator.py
+        file_path:
+          type: string
+          nullable: true
+          example: src/calculator.py
+        file_size_bytes:
+          type: integer
+        content_url:
+          type: string
+          description: URL to download file content
+          example: /api/v1/files/abc123/content
+
+    LearningDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        generation_status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        content:
+          type: object
+          description: 7-chapter structured content
+          properties:
+            chapter1:
+              type: object
+              properties:
+                title:
+                  type: string
+                summary:
+                  type: string
+            chapter2:
+              type: object
+              properties:
+                title:
+                  type: string
+                concepts:
+                  type: array
+                  items:
+                    type: object
+            # ... other chapters
+        generated_at:
+          type: string
+          format: date-time
+
+    PracticeProblem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        problem_number:
+          type: integer
+          minimum: 1
+          maximum: 5
+        problem_type:
+          type: string
+          enum: [follow_along, fill_blanks, modify, debug, create]
+        problem_statement:
+          type: string
+        learning_objective:
+          type: string
+        hints:
+          type: array
+          items:
+            type: string
+          description: Progressive hints (reveal one at a time)
+        model_solution:
+          type: string
+          description: Complete solution (hidden until requested)
+        expected_output:
+          type: string
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        question_text:
+          type: string
+        selected_code_context:
+          type: string
+          nullable: true
+        answer_text:
+          type: string
+        answered_at:
+          type: string
+          format: date-time
+        helpful_feedback:
+          type: boolean
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    Progress:
+      type: object
+      properties:
+        chapters_completed:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3]
+        document_read_percentage:
+          type: integer
+          minimum: 0
+          maximum: 100
+        problems_completed:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3]
+        practice_completion_count:
+          type: integer
+          minimum: 0
+          maximum: 5
+        questions_asked_count:
+          type: integer
+        task_completed:
+          type: boolean
+        task_completion_date:
+          type: string
+          format: date-time
+          nullable: true
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid input
+        detail:
+          type: string
+          nullable: true
+        code:
+          type: string
+          example: VALIDATION_ERROR
