@@ -9,15 +9,9 @@ const renderWithProviders = (ui: React.ReactElement) => {
 }
 
 describe('App', () => {
-  it('renders the dashboard page at root route', () => {
+  it('renders the app without crashing', () => {
     renderWithProviders(<App />)
-    expect(screen.getByText('Dashboard')).toBeInTheDocument()
-  })
-
-  it('renders the project list placeholder', () => {
-    renderWithProviders(<App />)
-    expect(
-      screen.getByText('Project list - to be implemented')
-    ).toBeInTheDocument()
+    // App renders a loading spinner while checking auth state
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
 })

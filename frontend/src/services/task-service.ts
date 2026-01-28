@@ -20,10 +20,7 @@ export const taskService = {
    * @param includeTrashed - Include soft-deleted tasks (default: false)
    * @returns List of tasks
    */
-  async getTasks(
-    projectId: string,
-    includeTrashed = false
-  ): Promise<TaskListResponse> {
+  async getTasks(projectId: string, includeTrashed = false): Promise<TaskListResponse> {
     const params = includeTrashed ? '?include_trashed=true' : ''
     return get<TaskListResponse>(`/projects/${projectId}/tasks${params}`)
   },
@@ -69,10 +66,7 @@ export const taskService = {
       }
     }
 
-    return uploadFiles<CreateTaskResponse>(
-      `/projects/${projectId}/tasks`,
-      formData
-    )
+    return uploadFiles<CreateTaskResponse>(`/projects/${projectId}/tasks`, formData)
   },
 
   /**
@@ -90,10 +84,7 @@ export const taskService = {
    * @param data - Update data (title, description)
    * @returns The updated task
    */
-  async updateTask(
-    taskId: string,
-    data: UpdateTaskRequest
-  ): Promise<UpdateTaskResponse> {
+  async updateTask(taskId: string, data: UpdateTaskRequest): Promise<UpdateTaskResponse> {
     return patch<UpdateTaskResponse>(`/tasks/${taskId}`, data)
   },
 

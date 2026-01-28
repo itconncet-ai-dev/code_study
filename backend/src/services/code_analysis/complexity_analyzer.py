@@ -225,7 +225,7 @@ class ComplexityAnalyzer:
     }
 
     @classmethod
-    def analyze(cls, code: str, filename: str = "") -> ComplexityResult:
+    def analyze(cls, code: str, _filename: str = "") -> ComplexityResult:
         """
         Analyze code complexity and return detailed results.
 
@@ -269,9 +269,7 @@ class ComplexityAnalyzer:
         )
 
     @classmethod
-    def analyze_files(
-        cls, files: Sequence[tuple[str, str]]
-    ) -> ComplexityResult:
+    def analyze_files(cls, files: Sequence[tuple[str, str]]) -> ComplexityResult:
         """
         Analyze multiple code files and return aggregated results.
 
@@ -379,7 +377,11 @@ class ComplexityAnalyzer:
                     metrics.function_count += 1
 
                 # Track function complexity
-                func_lines = node.end_lineno - node.lineno + 1 if hasattr(node, "end_lineno") else 0
+                func_lines = (
+                    node.end_lineno - node.lineno + 1
+                    if hasattr(node, "end_lineno")
+                    else 0
+                )
                 function_lengths.append(func_lines)
                 function_params.append(len(node.args.args))
 
@@ -394,7 +396,11 @@ class ComplexityAnalyzer:
                     metrics.function_count += 1
                 metrics.async_count += 1
 
-                func_lines = node.end_lineno - node.lineno + 1 if hasattr(node, "end_lineno") else 0
+                func_lines = (
+                    node.end_lineno - node.lineno + 1
+                    if hasattr(node, "end_lineno")
+                    else 0
+                )
                 function_lengths.append(func_lines)
                 function_params.append(len(node.args.args))
 
@@ -403,16 +409,20 @@ class ComplexityAnalyzer:
                 metrics.class_count += 1
 
             # Count decorators
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            elif isinstance(
+                node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
+            ):
                 if hasattr(node, "decorator_list"):
                     metrics.decorator_count += len(node.decorator_list)
 
             # Count advanced features
             elif isinstance(node, ast.Lambda):
                 metrics.lambda_count += 1
-            elif isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+            elif isinstance(
+                node, ast.ListComp | ast.SetComp | ast.DictComp | ast.GeneratorExp
+            ):
                 metrics.comprehension_count += 1
-            elif isinstance(node, (ast.Yield, ast.YieldFrom)):
+            elif isinstance(node, ast.Yield | ast.YieldFrom):
                 metrics.generator_count += 1
             elif isinstance(node, ast.ExceptHandler):
                 metrics.exception_handler_count += 1
@@ -427,7 +437,9 @@ class ComplexityAnalyzer:
             metrics.avg_function_params = sum(function_params) / len(function_params)
 
     @classmethod
-    def _is_method(cls, node: ast.FunctionDef | ast.AsyncFunctionDef, tree: ast.AST) -> bool:
+    def _is_method(
+        cls, node: ast.FunctionDef | ast.AsyncFunctionDef, tree: ast.AST
+    ) -> bool:
         """Check if a function is a method within a class."""
         for parent in ast.walk(tree):
             if isinstance(parent, ast.ClassDef):
@@ -449,7 +461,13 @@ class ComplexityAnalyzer:
                 # Control flow increases nesting
                 if isinstance(
                     child,
-                    (ast.If, ast.For, ast.While, ast.With, ast.Try, ast.FunctionDef, ast.ClassDef),
+                    ast.If
+                    | ast.For
+                    | ast.While
+                    | ast.With
+                    | ast.Try
+                    | ast.FunctionDef
+                    | ast.ClassDef,
                 ):
                     walk_with_depth(child, depth + 1)
                 else:
@@ -468,13 +486,17 @@ class ComplexityAnalyzer:
             metrics: Metrics object to update
         """
         # Function definitions
-        metrics.function_count = len(re.findall(r"^\s*def\s+\w+\s*\(", code, re.MULTILINE))
+        metrics.function_count = len(
+            re.findall(r"^\s*def\s+\w+\s*\(", code, re.MULTILINE)
+        )
 
         # Class definitions
         metrics.class_count = len(re.findall(r"^\s*class\s+\w+", code, re.MULTILINE))
 
         # Import statements
-        metrics.import_count = len(re.findall(r"^\s*(import|from)\s+", code, re.MULTILINE))
+        metrics.import_count = len(
+            re.findall(r"^\s*(import|from)\s+", code, re.MULTILINE)
+        )
 
         # Decorators
         metrics.decorator_count = len(re.findall(r"^\s*@\w+", code, re.MULTILINE))
@@ -488,7 +510,9 @@ class ComplexityAnalyzer:
         metrics.max_nesting_depth = max_indent
 
     @classmethod
-    def _aggregate_metrics(cls, metrics_list: list[ComplexityMetrics]) -> ComplexityMetrics:
+    def _aggregate_metrics(
+        cls, metrics_list: list[ComplexityMetrics]
+    ) -> ComplexityMetrics:
         """Aggregate metrics from multiple files."""
         if not metrics_list:
             return ComplexityMetrics()
@@ -517,12 +541,14 @@ class ComplexityAnalyzer:
         # Average the averages (weighted by function count would be better)
         total_functions = sum(m.function_count for m in metrics_list)
         if total_functions > 0:
-            aggregated.avg_function_length = sum(
-                m.avg_function_length * m.function_count for m in metrics_list
-            ) / total_functions
-            aggregated.avg_function_params = sum(
-                m.avg_function_params * m.function_count for m in metrics_list
-            ) / total_functions
+            aggregated.avg_function_length = (
+                sum(m.avg_function_length * m.function_count for m in metrics_list)
+                / total_functions
+            )
+            aggregated.avg_function_params = (
+                sum(m.avg_function_params * m.function_count for m in metrics_list)
+                / total_functions
+            )
 
         return aggregated
 
@@ -678,9 +704,7 @@ class ComplexityAnalyzer:
     @classmethod
     def _calculate_total_score(cls, metric_scores: list[MetricScore]) -> float:
         """Calculate weighted total score."""
-        total = sum(
-            score.normalized_score * score.weight for score in metric_scores
-        )
+        total = sum(score.normalized_score * score.weight for score in metric_scores)
         return round(total, 2)
 
     @classmethod
@@ -701,7 +725,9 @@ class ComplexityAnalyzer:
 
         # Add observations based on metrics
         if metrics.class_count > 0:
-            notes.append(f"Uses object-oriented programming with {metrics.class_count} class(es)")
+            notes.append(
+                f"Uses object-oriented programming with {metrics.class_count} class(es)"
+            )
 
         if metrics.async_count > 0:
             notes.append(f"Contains {metrics.async_count} async function(s)")
@@ -710,20 +736,23 @@ class ComplexityAnalyzer:
             notes.append(f"Uses {metrics.decorator_count} decorator(s)")
 
         if metrics.comprehension_count > 0:
-            notes.append(f"Contains {metrics.comprehension_count} list/dict/set comprehension(s)")
+            notes.append(
+                f"Contains {metrics.comprehension_count} list/dict/set comprehension(s)"
+            )
 
         if metrics.generator_count > 0:
             notes.append(f"Uses {metrics.generator_count} generator expression(s)")
 
         if metrics.exception_handler_count > 0:
-            notes.append(f"Implements {metrics.exception_handler_count} exception handler(s)")
+            notes.append(
+                f"Implements {metrics.exception_handler_count} exception handler(s)"
+            )
 
         if metrics.max_nesting_depth >= 4:
             notes.append(f"Deep nesting detected (depth: {metrics.max_nesting_depth})")
 
-        if not notes:
-            if level == ComplexityLevel.BEGINNER:
-                notes.append("Simple procedural code with basic control flow")
+        if not notes and level == ComplexityLevel.BEGINNER:
+            notes.append("Simple procedural code with basic control flow")
 
         return notes
 
@@ -751,9 +780,15 @@ class ComplexityAnalyzer:
                 f"{score.normalized_score:>10.1f} │ {score.weight:>6.2f} │ {weighted:>13.2f} │"
             )
 
-        lines.append("├─────────────────────────┴───────────┴────────────┴────────┼───────────────┤")
-        lines.append(f"│ TOTAL SCORE                                              │ {result.total_score:>13.2f} │")
-        lines.append("└──────────────────────────────────────────────────────────┴───────────────┘")
+        lines.append(
+            "├─────────────────────────┴───────────┴────────────┴────────┼───────────────┤"
+        )
+        lines.append(
+            f"│ TOTAL SCORE                                              │ {result.total_score:>13.2f} │"
+        )
+        lines.append(
+            "└──────────────────────────────────────────────────────────┴───────────────┘"
+        )
         lines.append(f"Complexity Level: {result.level.value.upper()}")
 
         return "\n".join(lines)

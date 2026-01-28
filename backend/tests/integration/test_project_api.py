@@ -18,16 +18,17 @@ Testing Strategy (TDD):
 Reference: api-spec.yaml §Project endpoints
 """
 
+from datetime import UTC
+from uuid import uuid4
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import uuid4
 
 from src.main import app
-from src.models.user import User
 from src.models.project import Project
+from src.models.user import User
 from src.services.auth.token_service import TokenService
-
 
 # =============================================================================
 # Fixtures
@@ -43,8 +44,7 @@ async def client() -> AsyncClient:
         AsyncClient configured with the FastAPI app
     """
     async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test"
+        transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
         yield ac
 
@@ -89,9 +89,7 @@ async def auth_headers(db_session: AsyncSession, test_user: User) -> dict[str, s
     token_service = TokenService(db_session)
     access_token, _ = await token_service.create_token_pair(test_user.id)
 
-    return {
-        "Authorization": f"Bearer {access_token}"
-    }
+    return {"Authorization": f"Bearer {access_token}"}
 
 
 @pytest.fixture
@@ -131,9 +129,9 @@ async def trashed_project(db_session: AsyncSession, test_user: User) -> Project:
     Returns:
         Project: Trashed test project instance
     """
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     project = Project(
         user_id=test_user.id,
         title="Trashed Project",
@@ -234,9 +232,7 @@ class TestGetProjects:
     ):
         """Test GET /projects includes trashed projects when include_trashed=true."""
         response = await client.get(
-            "/api/v1/projects",
-            headers=auth_headers,
-            params={"include_trashed": True}
+            "/api/v1/projects", headers=auth_headers, params={"include_trashed": True}
         )
 
         assert response.status_code == 200
@@ -299,10 +295,7 @@ class TestCreateProject:
     @pytest.mark.asyncio
     async def test_create_project_requires_authentication(self, client: AsyncClient):
         """Test that POST /projects requires authentication."""
-        response = await client.post(
-            "/api/v1/projects",
-            json={"title": "New Project"}
-        )
+        response = await client.post("/api/v1/projects", json={"title": "New Project"})
 
         assert response.status_code == 401
         assert "error" in response.json()
@@ -317,10 +310,7 @@ class TestCreateProject:
         response = await client.post(
             "/api/v1/projects",
             headers=auth_headers,
-            json={
-                "title": "My New Project",
-                "description": "Learning Python basics"
-            }
+            json={"title": "My New Project", "description": "Learning Python basics"},
         )
 
         assert response.status_code == 201
@@ -343,7 +333,7 @@ class TestCreateProject:
         response = await client.post(
             "/api/v1/projects",
             headers=auth_headers,
-            json={"title": "Project Without Description"}
+            json={"title": "Project Without Description"},
         )
 
         assert response.status_code == 201
@@ -362,7 +352,7 @@ class TestCreateProject:
         response = await client.post(
             "/api/v1/projects",
             headers=auth_headers,
-            json={"description": "No title provided"}
+            json={"description": "No title provided"},
         )
 
         assert response.status_code == 422
@@ -376,9 +366,7 @@ class TestCreateProject:
     ):
         """Test that title cannot be empty string."""
         response = await client.post(
-            "/api/v1/projects",
-            headers=auth_headers,
-            json={"title": "   "}
+            "/api/v1/projects", headers=auth_headers, json={"title": "   "}
         )
 
         assert response.status_code == 422
@@ -393,9 +381,7 @@ class TestCreateProject:
         """Test that title respects max length (255 chars)."""
         long_title = "A" * 256
         response = await client.post(
-            "/api/v1/projects",
-            headers=auth_headers,
-            json={"title": long_title}
+            "/api/v1/projects", headers=auth_headers, json={"title": long_title}
         )
 
         assert response.status_code == 422
@@ -430,8 +416,7 @@ class TestGetProjectById:
     ):
         """Test successful retrieval of project details."""
         response = await client.get(
-            f"/api/v1/projects/{test_project.id}",
-            headers=auth_headers
+            f"/api/v1/projects/{test_project.id}", headers=auth_headers
         )
 
         assert response.status_code == 200
@@ -452,10 +437,7 @@ class TestGetProjectById:
     ):
         """Test 404 response for non-existent project."""
         fake_id = uuid4()
-        response = await client.get(
-            f"/api/v1/projects/{fake_id}",
-            headers=auth_headers
-        )
+        response = await client.get(f"/api/v1/projects/{fake_id}", headers=auth_headers)
 
         assert response.status_code == 404
         assert "error" in response.json()
@@ -492,8 +474,7 @@ class TestGetProjectById:
 
         # Try to access with first user's auth
         response = await client.get(
-            f"/api/v1/projects/{other_project.id}",
-            headers=auth_headers
+            f"/api/v1/projects/{other_project.id}", headers=auth_headers
         )
 
         assert response.status_code == 403
@@ -509,8 +490,7 @@ class TestGetProjectById:
     ):
         """Test that trashed projects return 404 by default."""
         response = await client.get(
-            f"/api/v1/projects/{trashed_project.id}",
-            headers=auth_headers
+            f"/api/v1/projects/{trashed_project.id}", headers=auth_headers
         )
 
         assert response.status_code == 404
@@ -532,8 +512,7 @@ class TestUpdateProject:
     ):
         """Test that PATCH /projects/{id} requires authentication."""
         response = await client.patch(
-            f"/api/v1/projects/{test_project.id}",
-            json={"title": "Updated Title"}
+            f"/api/v1/projects/{test_project.id}", json={"title": "Updated Title"}
         )
 
         assert response.status_code == 401
@@ -549,7 +528,7 @@ class TestUpdateProject:
         response = await client.patch(
             f"/api/v1/projects/{test_project.id}",
             headers=auth_headers,
-            json={"title": "Updated Project Title"}
+            json={"title": "Updated Project Title"},
         )
 
         assert response.status_code == 200
@@ -570,7 +549,7 @@ class TestUpdateProject:
         response = await client.patch(
             f"/api/v1/projects/{test_project.id}",
             headers=auth_headers,
-            json={"description": "New description"}
+            json={"description": "New description"},
         )
 
         assert response.status_code == 200
@@ -591,10 +570,7 @@ class TestUpdateProject:
         response = await client.patch(
             f"/api/v1/projects/{test_project.id}",
             headers=auth_headers,
-            json={
-                "title": "New Title",
-                "description": "New Description"
-            }
+            json={"title": "New Title", "description": "New Description"},
         )
 
         assert response.status_code == 200
@@ -614,7 +590,7 @@ class TestUpdateProject:
         response = await client.patch(
             f"/api/v1/projects/{test_project.id}",
             headers=auth_headers,
-            json={"title": "   "}
+            json={"title": "   "},
         )
 
         assert response.status_code == 422
@@ -630,7 +606,7 @@ class TestUpdateProject:
         response = await client.patch(
             f"/api/v1/projects/{fake_id}",
             headers=auth_headers,
-            json={"title": "New Title"}
+            json={"title": "New Title"},
         )
 
         assert response.status_code == 404
@@ -666,7 +642,7 @@ class TestUpdateProject:
         response = await client.patch(
             f"/api/v1/projects/{other_project.id}",
             headers=auth_headers,
-            json={"title": "Hacked Title"}
+            json={"title": "Hacked Title"},
         )
 
         assert response.status_code == 403
@@ -701,8 +677,7 @@ class TestDeleteProject:
     ):
         """Test successful soft delete of project."""
         response = await client.delete(
-            f"/api/v1/projects/{test_project.id}",
-            headers=auth_headers
+            f"/api/v1/projects/{test_project.id}", headers=auth_headers
         )
 
         assert response.status_code == 204
@@ -723,8 +698,7 @@ class TestDeleteProject:
         """Test 404 for non-existent project."""
         fake_id = uuid4()
         response = await client.delete(
-            f"/api/v1/projects/{fake_id}",
-            headers=auth_headers
+            f"/api/v1/projects/{fake_id}", headers=auth_headers
         )
 
         assert response.status_code == 404
@@ -758,8 +732,7 @@ class TestDeleteProject:
         await db_session.refresh(other_project)
 
         response = await client.delete(
-            f"/api/v1/projects/{other_project.id}",
-            headers=auth_headers
+            f"/api/v1/projects/{other_project.id}", headers=auth_headers
         )
 
         assert response.status_code == 403
@@ -773,8 +746,7 @@ class TestDeleteProject:
     ):
         """Test that deleting already trashed project returns 404."""
         response = await client.delete(
-            f"/api/v1/projects/{trashed_project.id}",
-            headers=auth_headers
+            f"/api/v1/projects/{trashed_project.id}", headers=auth_headers
         )
 
         assert response.status_code == 404

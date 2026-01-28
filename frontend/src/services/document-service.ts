@@ -1,8 +1,5 @@
 import { get } from './api-client'
-import type {
-  GetDocumentResponse,
-  DocumentStatusResponse,
-} from '@/types/document'
+import type { GetDocumentResponse, DocumentStatusResponse } from '@/types/document'
 
 /**
  * Document service for handling learning document-related API operations.

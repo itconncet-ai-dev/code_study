@@ -18,7 +18,7 @@ Reference: data-model.md §Project entity
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import select
@@ -40,10 +40,7 @@ class TestProjectModel:
         from src.models.project import Project
 
         user_id = uuid.uuid4()
-        project = Project(
-            user_id=user_id,
-            title="Test Project"
-        )
+        project = Project(user_id=user_id, title="Test Project")
 
         assert project.id is not None
         assert isinstance(project.id, uuid.UUID)
@@ -63,10 +60,7 @@ class TestProjectModel:
         from src.models.project import Project
 
         user_id = uuid.uuid4()
-        project = Project(
-            user_id=user_id,
-            title="My Learning Project"
-        )
+        project = Project(user_id=user_id, title="My Learning Project")
 
         assert project.title == "My Learning Project"
 
@@ -87,7 +81,7 @@ class TestProjectModel:
         project = Project(
             user_id=user_id,
             title="Test Project",
-            description="This is a detailed project description."
+            description="This is a detailed project description.",
         )
 
         assert project.description == "This is a detailed project description."
@@ -158,7 +152,7 @@ class TestProjectModel:
         from src.models.project import Project
 
         user_id = uuid.uuid4()
-        trashed_time = datetime.now(timezone.utc)
+        trashed_time = datetime.now(UTC)
         scheduled_time = trashed_time + timedelta(days=30)
 
         project = Project(
@@ -166,7 +160,7 @@ class TestProjectModel:
             title="Test Project",
             deletion_status="trashed",
             trashed_at=trashed_time,
-            scheduled_deletion_at=scheduled_time
+            scheduled_deletion_at=scheduled_time,
         )
 
         assert project.deletion_status == "trashed"
@@ -180,13 +174,12 @@ class TestProjectModelDatabase:
 
     async def test_project_create_and_retrieve(self, db_session):
         """Project should be creatable and retrievable from database."""
-        from src.models.user import User
         from src.models.project import Project
+        from src.models.user import User
 
         # Create a user first (foreign key requirement)
         user = User(
-            email="projectowner@example.com",
-            password_hash="$2b$12$test_hash_value"
+            email="projectowner@example.com", password_hash="$2b$12$test_hash_value"
         )
         db_session.add(user)
         await db_session.commit()
@@ -196,7 +189,7 @@ class TestProjectModelDatabase:
         project = Project(
             user_id=user.id,
             title="Test Project",
-            description="A test project description"
+            description="A test project description",
         )
         db_session.add(project)
         await db_session.commit()
@@ -222,10 +215,7 @@ class TestProjectModelDatabase:
 
         # Try to create project with non-existent user
         fake_user_id = uuid.uuid4()
-        project = Project(
-            user_id=fake_user_id,
-            title="Orphan Project"
-        )
+        project = Project(user_id=fake_user_id, title="Orphan Project")
         db_session.add(project)
 
         with pytest.raises(IntegrityError):
@@ -233,13 +223,10 @@ class TestProjectModelDatabase:
 
     async def test_project_title_not_null_constraint(self, db_session):
         """Project title should have NOT NULL constraint."""
-        from src.models.user import User
         from src.models.project import Project
+        from src.models.user import User
 
-        user = User(
-            email="notitle@example.com",
-            password_hash="test_hash"
-        )
+        user = User(email="notitle@example.com", password_hash="test_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
@@ -252,21 +239,15 @@ class TestProjectModelDatabase:
 
     async def test_project_timestamps_auto_set(self, db_session):
         """created_at, updated_at, last_activity_at should be automatically set."""
-        from src.models.user import User
         from src.models.project import Project
+        from src.models.user import User
 
-        user = User(
-            email="timestamps@example.com",
-            password_hash="test_hash"
-        )
+        user = User(email="timestamps@example.com", password_hash="test_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
 
-        project = Project(
-            user_id=user.id,
-            title="Timestamp Test Project"
-        )
+        project = Project(user_id=user.id, title="Timestamp Test Project")
         db_session.add(project)
         await db_session.commit()
         await db_session.refresh(project)
@@ -280,21 +261,15 @@ class TestProjectModelDatabase:
 
     async def test_project_cascade_delete_with_user(self, db_session):
         """Project should be deleted when owning user is deleted (CASCADE)."""
-        from src.models.user import User
         from src.models.project import Project
+        from src.models.user import User
 
-        user = User(
-            email="cascade@example.com",
-            password_hash="test_hash"
-        )
+        user = User(email="cascade@example.com", password_hash="test_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
 
-        project = Project(
-            user_id=user.id,
-            title="Cascade Test Project"
-        )
+        project = Project(user_id=user.id, title="Cascade Test Project")
         db_session.add(project)
         await db_session.commit()
 
@@ -312,21 +287,15 @@ class TestProjectModelDatabase:
 
     async def test_project_user_relationship(self, db_session):
         """Project should have a relationship to User."""
-        from src.models.user import User
         from src.models.project import Project
+        from src.models.user import User
 
-        user = User(
-            email="relationship@example.com",
-            password_hash="test_hash"
-        )
+        user = User(email="relationship@example.com", password_hash="test_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
 
-        project = Project(
-            user_id=user.id,
-            title="Relationship Test Project"
-        )
+        project = Project(user_id=user.id, title="Relationship Test Project")
         db_session.add(project)
         await db_session.commit()
         await db_session.refresh(project)
@@ -338,13 +307,10 @@ class TestProjectModelDatabase:
 
     async def test_user_projects_relationship(self, db_session):
         """User should have a projects relationship (backref)."""
-        from src.models.user import User
         from src.models.project import Project
+        from src.models.user import User
 
-        user = User(
-            email="multiproject@example.com",
-            password_hash="test_hash"
-        )
+        user = User(email="multiproject@example.com", password_hash="test_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
@@ -364,18 +330,15 @@ class TestProjectModelDatabase:
 
     async def test_project_soft_delete_persistence(self, db_session):
         """Soft delete fields should persist correctly."""
-        from src.models.user import User
         from src.models.project import Project
+        from src.models.user import User
 
-        user = User(
-            email="softdelete@example.com",
-            password_hash="test_hash"
-        )
+        user = User(email="softdelete@example.com", password_hash="test_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
 
-        trashed_time = datetime.now(timezone.utc)
+        trashed_time = datetime.now(UTC)
         scheduled_time = trashed_time + timedelta(days=30)
 
         project = Project(
@@ -383,7 +346,7 @@ class TestProjectModelDatabase:
             title="Soft Delete Test",
             deletion_status="trashed",
             trashed_at=trashed_time,
-            scheduled_deletion_at=scheduled_time
+            scheduled_deletion_at=scheduled_time,
         )
         db_session.add(project)
         await db_session.commit()

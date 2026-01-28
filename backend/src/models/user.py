@@ -21,8 +21,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
-    from src.models.refresh_token import RefreshToken
     from src.models.project import Project
+    from src.models.refresh_token import RefreshToken
 
 
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -80,13 +80,13 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     )
 
     # Relationships
-    projects: Mapped[list["Project"]] = relationship(
+    projects: Mapped[list[Project]] = relationship(
         "Project",
         back_populates="user",
         cascade="all, delete-orphan",
         lazy="selectin",
     )
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+    refresh_tokens: Mapped[list[RefreshToken]] = relationship(
         "RefreshToken",
         back_populates="user",
         cascade="all, delete-orphan",

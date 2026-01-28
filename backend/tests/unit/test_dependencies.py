@@ -13,15 +13,21 @@ TDD Phase: RED
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import UTC, datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.exceptions import TokenExpiredError, TokenInvalidError, UnauthorizedError
 from src.models.user import User
+
+
+def _mock_request() -> MagicMock:
+    """Create a mock FastAPI Request with empty cookies."""
+    request = MagicMock()
+    request.cookies = {}
+    return request
 
 
 class TestGetCurrentUser:
@@ -61,7 +67,7 @@ class TestGetCurrentUser:
         mock_db.execute.return_value = mock_result
 
         # Get current user
-        user = await get_current_user(token=token, db=mock_db)
+        user = await get_current_user(request=_mock_request(), token=token, db=mock_db)
 
         assert user is not None
         assert user.id == test_user.id
@@ -75,7 +81,9 @@ class TestGetCurrentUser:
         from src.api.dependencies import get_current_user
 
         with pytest.raises((UnauthorizedError, TokenInvalidError)):
-            await get_current_user(token="invalid.token.here", db=mock_db)
+            await get_current_user(
+                request=_mock_request(), token="invalid.token.here", db=mock_db
+            )
 
     @pytest.mark.asyncio
     async def test_get_current_user_raises_on_expired_token(
@@ -91,7 +99,7 @@ class TestGetCurrentUser:
         settings = get_jwt_settings()
 
         # Create an expired token
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
             "type": "access",
@@ -105,7 +113,9 @@ class TestGetCurrentUser:
         )
 
         with pytest.raises((TokenExpiredError, UnauthorizedError)):
-            await get_current_user(token=expired_token, db=mock_db)
+            await get_current_user(
+                request=_mock_request(), token=expired_token, db=mock_db
+            )
 
     @pytest.mark.asyncio
     async def test_get_current_user_raises_when_user_not_found(
@@ -125,7 +135,7 @@ class TestGetCurrentUser:
         mock_db.execute.return_value = mock_result
 
         with pytest.raises(UnauthorizedError):
-            await get_current_user(token=token, db=mock_db)
+            await get_current_user(request=_mock_request(), token=token, db=mock_db)
 
     @pytest.mark.asyncio
     async def test_get_current_user_raises_on_missing_token(
@@ -135,7 +145,7 @@ class TestGetCurrentUser:
         from src.api.dependencies import get_current_user
 
         with pytest.raises(UnauthorizedError):
-            await get_current_user(token=None, db=mock_db)
+            await get_current_user(request=_mock_request(), token=None, db=mock_db)
 
     @pytest.mark.asyncio
     async def test_get_current_user_raises_on_empty_token(
@@ -145,7 +155,7 @@ class TestGetCurrentUser:
         from src.api.dependencies import get_current_user
 
         with pytest.raises(UnauthorizedError):
-            await get_current_user(token="", db=mock_db)
+            await get_current_user(request=_mock_request(), token="", db=mock_db)
 
 
 class TestGetCurrentUserOptional:
@@ -183,7 +193,9 @@ class TestGetCurrentUserOptional:
         mock_result.scalar_one_or_none.return_value = test_user
         mock_db.execute.return_value = mock_result
 
-        user = await get_current_user_optional(token=token, db=mock_db)
+        user = await get_current_user_optional(
+            request=_mock_request(), token=token, db=mock_db
+        )
 
         assert user is not None
         assert user.id == test_user.id
@@ -195,7 +207,9 @@ class TestGetCurrentUserOptional:
         """Missing token should return None (not raise error)."""
         from src.api.dependencies import get_current_user_optional
 
-        user = await get_current_user_optional(token=None, db=mock_db)
+        user = await get_current_user_optional(
+            request=_mock_request(), token=None, db=mock_db
+        )
         assert user is None
 
     @pytest.mark.asyncio
@@ -205,7 +219,9 @@ class TestGetCurrentUserOptional:
         """Invalid token should return None (not raise error)."""
         from src.api.dependencies import get_current_user_optional
 
-        user = await get_current_user_optional(token="invalid.token.here", db=mock_db)
+        user = await get_current_user_optional(
+            request=_mock_request(), token="invalid.token.here", db=mock_db
+        )
         assert user is None
 
     @pytest.mark.asyncio
@@ -222,7 +238,7 @@ class TestGetCurrentUserOptional:
         settings = get_jwt_settings()
 
         # Create an expired token
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         payload = {
             "sub": str(user_id),
             "type": "access",
@@ -235,7 +251,9 @@ class TestGetCurrentUserOptional:
             algorithm=settings.jwt_algorithm,
         )
 
-        user = await get_current_user_optional(token=expired_token, db=mock_db)
+        user = await get_current_user_optional(
+            request=_mock_request(), token=expired_token, db=mock_db
+        )
         assert user is None
 
 
@@ -291,7 +309,7 @@ class TestRequireAuth:
         mock_result.scalar_one_or_none.return_value = test_user
         mock_db.execute.return_value = mock_result
 
-        user = await require_auth(token=token, db=mock_db)
+        user = await require_auth(request=_mock_request(), token=token, db=mock_db)
 
         assert user is not None
         assert user.id == test_user.id

@@ -171,11 +171,7 @@ describe('API helper functions', () => {
 
       const result = await post<typeof responseData>('/test', requestData)
 
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/test',
-        requestData,
-        undefined
-      )
+      expect(apiClient.post).toHaveBeenCalledWith('/test', requestData, undefined)
       expect(result).toEqual(responseData)
     })
   })
@@ -187,11 +183,7 @@ describe('API helper functions', () => {
 
       const result = await patch('/test/1', updateData)
 
-      expect(apiClient.patch).toHaveBeenCalledWith(
-        '/test/1',
-        updateData,
-        undefined
-      )
+      expect(apiClient.patch).toHaveBeenCalledWith('/test/1', updateData, undefined)
       expect(result).toEqual(updateData)
     })
   })

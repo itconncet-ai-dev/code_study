@@ -125,26 +125,31 @@ class OpenRouterError(Exception):
 
 class OpenRouterAPIError(OpenRouterError):
     """API-level error from OpenRouter service."""
+
     pass
 
 
 class OpenRouterRateLimitError(OpenRouterError):
     """Rate limit exceeded error."""
+
     pass
 
 
 class OpenRouterTimeoutError(OpenRouterError):
     """Request timeout error."""
+
     pass
 
 
 class OpenRouterContentBlockedError(OpenRouterError):
     """Content was blocked by safety filters."""
+
     pass
 
 
 class OpenRouterInvalidResponseError(OpenRouterError):
     """Invalid or malformed response from API."""
+
     pass
 
 
@@ -429,9 +434,7 @@ class OpenRouterClient:
             error = data["error"]
             error_msg = error.get("message", str(error))
             if "content" in error_msg.lower() and "block" in error_msg.lower():
-                raise OpenRouterContentBlockedError(
-                    f"Content blocked: {error_msg}"
-                )
+                raise OpenRouterContentBlockedError(f"Content blocked: {error_msg}")
             raise OpenRouterAPIError(f"API error: {error_msg}")
 
         # Extract from choices
@@ -447,9 +450,7 @@ class OpenRouterClient:
             # Check finish reason
             finish_reason = choice.get("finish_reason", "")
             if finish_reason == "content_filter":
-                raise OpenRouterContentBlockedError(
-                    "Content blocked by content filter"
-                )
+                raise OpenRouterContentBlockedError("Content blocked by content filter")
             raise OpenRouterInvalidResponseError("No content in response message")
 
         return content

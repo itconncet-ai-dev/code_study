@@ -22,8 +22,6 @@ Usage:
 import time
 from datetime import datetime
 
-from celery import current_task
-
 from .celery_app import celery_app
 
 
@@ -67,7 +65,7 @@ def simulate_document_generation(
                 "progress": progress,
                 "status": f"처리 중... {progress:.0f}%",
                 "document_name": document_name,
-            }
+            },
         )
 
         print(f"[{task_id}] 진행률: {progress:.0f}% ({step + 1}/{steps})")

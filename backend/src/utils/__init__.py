@@ -6,6 +6,10 @@ This package provides utility modules for:
 - Security utilities (security.py) - Password hashing with bcrypt
 """
 
+from src.utils.file_validator import (
+    FileValidator,
+    ValidationResult,
+)
 from src.utils.jwt import (
     JWTSettings,
     TokenError,
@@ -30,10 +34,6 @@ from src.utils.security import (
     get_password_settings,
     hash_password,
     verify_password,
-)
-from src.utils.file_validator import (
-    FileValidator,
-    ValidationResult,
 )
 
 __all__ = [

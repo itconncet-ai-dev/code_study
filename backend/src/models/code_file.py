@@ -116,27 +116,29 @@ class CodeFile(Base, UUIDPrimaryKeyMixin):
     )
 
     # Relationships
-    uploaded_code: Mapped["UploadedCode"] = relationship(
+    uploaded_code: Mapped[UploadedCode] = relationship(
         "UploadedCode",
         back_populates="code_files",
         lazy="selectin",
     )
 
     # Supported file extensions (FR-015)
-    SUPPORTED_EXTENSIONS = frozenset({
-        ".py",    # Python
-        ".js",    # JavaScript
-        ".ts",    # TypeScript
-        ".jsx",   # React JSX
-        ".tsx",   # React TSX
-        ".html",  # HTML
-        ".css",   # CSS
-        ".java",  # Java
-        ".cpp",   # C++
-        ".c",     # C
-        ".txt",   # Text
-        ".md",    # Markdown
-    })
+    SUPPORTED_EXTENSIONS = frozenset(
+        {
+            ".py",  # Python
+            ".js",  # JavaScript
+            ".ts",  # TypeScript
+            ".jsx",  # React JSX
+            ".tsx",  # React TSX
+            ".html",  # HTML
+            ".css",  # CSS
+            ".java",  # Java
+            ".cpp",  # C++
+            ".c",  # C
+            ".txt",  # Text
+            ".md",  # Markdown
+        }
+    )
 
     # Maximum files per upload (FR-018)
     MAX_FILES_PER_UPLOAD = 20

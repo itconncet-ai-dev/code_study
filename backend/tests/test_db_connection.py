@@ -6,7 +6,7 @@ This test demonstrates that the database session management is working correctly
 """
 
 import pytest
-from sqlalchemy import select, func, text
+from sqlalchemy import func, select, text
 
 
 class TestSQLAlchemyConnection:
@@ -79,16 +79,12 @@ class TestSQLAlchemyConnection:
             """))
 
             # Insert data
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 INSERT INTO users_temp (name, email)
                 VALUES ('Alice', 'alice@example.com'),
                        ('Bob', 'bob@example.com'),
                        ('Charlie', 'charlie@example.com')
-            """
-                )
-            )
+            """))
 
             # Query data
             result = await session.execute(text("SELECT COUNT(*) FROM users_temp"))
@@ -132,9 +128,7 @@ class TestSQLAlchemyConnection:
 
             # Update data
             await session.execute(
-                text(
-                    "UPDATE products_temp SET price = 900 WHERE name = 'Laptop'"
-                )
+                text("UPDATE products_temp SET price = 900 WHERE name = 'Laptop'")
             )
 
             # Verify update
@@ -172,9 +166,7 @@ class TestSQLAlchemyConnection:
             )
 
             # Delete one record
-            await session.execute(
-                text("DELETE FROM items_temp WHERE name = 'Item1'")
-            )
+            await session.execute(text("DELETE FROM items_temp WHERE name = 'Item1'"))
 
             # Verify deletion
             result = await session.execute(text("SELECT COUNT(*) FROM items_temp"))
@@ -202,17 +194,14 @@ class TestSQLAlchemyConnection:
             """))
 
             # Insert data
-            await session.execute(
-                text("""
+            await session.execute(text("""
                 INSERT INTO sales_temp (amount, category)
                 VALUES (100, 'electronics'),
                        (200, 'electronics'),
                        (150, 'books'),
                        (75, 'books'),
                        (300, 'furniture')
-            """
-                )
-            )
+            """))
 
             # Test COUNT
             result = await session.execute(text("SELECT COUNT(*) FROM sales_temp"))
@@ -221,15 +210,15 @@ class TestSQLAlchemyConnection:
 
             # Test SUM
             result = await session.execute(
-                text("SELECT SUM(amount) FROM sales_temp WHERE category = 'electronics'")
+                text(
+                    "SELECT SUM(amount) FROM sales_temp WHERE category = 'electronics'"
+                )
             )
             electronics_total = result.scalar()
             assert electronics_total == 300
 
             # Test AVG
-            result = await session.execute(
-                text("SELECT AVG(amount) FROM sales_temp")
-            )
+            result = await session.execute(text("SELECT AVG(amount) FROM sales_temp"))
             average = result.scalar()
             assert average == 165.0
 
@@ -256,24 +245,18 @@ class TestSQLAlchemyConnection:
             """))
 
             # Insert data
-            await session.execute(
-                text("""
+            await session.execute(text("""
                 INSERT INTO orders_temp (customer, amount)
                 VALUES ('Alice', 100), ('Alice', 150), ('Bob', 200), ('Bob', 50)
-            """
-                )
-            )
+            """))
 
             # Test GROUP BY
-            result = await session.execute(
-                text("""
+            result = await session.execute(text("""
                 SELECT customer, SUM(amount) as total
                 FROM orders_temp
                 GROUP BY customer
                 ORDER BY customer
-            """
-                )
-            )
+            """))
             rows = result.fetchall()
 
             assert len(rows) == 2

@@ -4,13 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { projectService } from '@/services/project-service'
 import { taskService } from '@/services/task-service'
 import { ApiClientError } from '@/services/api-client'
@@ -18,7 +12,8 @@ import { TaskCard } from '@/components/task/TaskCard'
 import { CreateTaskModal } from '@/components/task/CreateTaskModal'
 
 export default function ProjectDetail() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { projectId: rawProjectId } = useParams<{ projectId: string }>()
+  const projectId = rawProjectId ?? ''
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -35,24 +30,21 @@ export default function ProjectDetail() {
     error,
   } = useQuery({
     queryKey: ['projects', projectId],
-    queryFn: () => projectService.getProject(projectId!),
+    queryFn: () => projectService.getProject(projectId),
     enabled: !!projectId,
   })
 
   // Fetch tasks for this project
-  const {
-    data: tasksData,
-    isLoading: isLoadingTasks,
-  } = useQuery({
+  const { data: tasksData, isLoading: isLoadingTasks } = useQuery({
     queryKey: ['projects', projectId, 'tasks'],
-    queryFn: () => taskService.getTasks(projectId!),
+    queryFn: () => taskService.getTasks(projectId),
     enabled: !!projectId,
   })
 
   // Update project mutation
   const updateMutation = useMutation({
     mutationFn: (data: { title?: string; description?: string }) =>
-      projectService.updateProject(projectId!, data),
+      projectService.updateProject(projectId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects', projectId] })
       queryClient.invalidateQueries({ queryKey: ['projects'] })
@@ -70,7 +62,7 @@ export default function ProjectDetail() {
 
   // Delete project mutation
   const deleteMutation = useMutation({
-    mutationFn: () => projectService.deleteProject(projectId!),
+    mutationFn: () => projectService.deleteProject(projectId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       navigate('/')
@@ -181,9 +173,7 @@ export default function ProjectDetail() {
                   <>
                     <CardTitle className="text-2xl">{project.title}</CardTitle>
                     {project.description && (
-                      <CardDescription className="mt-2">
-                        {project.description}
-                      </CardDescription>
+                      <CardDescription className="mt-2">{project.description}</CardDescription>
                     )}
                   </>
                 ) : (
@@ -217,10 +207,7 @@ export default function ProjectDetail() {
                       />
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        type="submit"
-                        disabled={updateMutation.isPending}
-                      >
+                      <Button type="submit" disabled={updateMutation.isPending}>
                         {updateMutation.isPending ? '저장 중...' : '저장'}
                       </Button>
                       <Button
@@ -289,20 +276,14 @@ export default function ProjectDetail() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle>작업 타임라인</CardTitle>
-                <CardDescription>
-                  {tasksData?.tasks.length || 0}개의 작업
-                </CardDescription>
+                <CardDescription>{tasksData?.tasks.length || 0}개의 작업</CardDescription>
               </div>
-              <Button onClick={() => setIsCreateModalOpen(true)}>
-                새 작업
-              </Button>
+              <Button onClick={() => setIsCreateModalOpen(true)}>새 작업</Button>
             </div>
           </CardHeader>
           <CardContent>
             {isLoadingTasks ? (
-              <div className="text-center py-8 text-gray-500">
-                작업 목록을 불러오는 중...
-              </div>
+              <div className="text-center py-8 text-gray-500">작업 목록을 불러오는 중...</div>
             ) : tasksData && tasksData.tasks.length > 0 ? (
               <div className="space-y-4">
                 {tasksData.tasks.map((task) => (
@@ -320,7 +301,7 @@ export default function ProjectDetail() {
 
       {/* Create Task Modal */}
       <CreateTaskModal
-        projectId={projectId!}
+        projectId={projectId}
         open={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
       />

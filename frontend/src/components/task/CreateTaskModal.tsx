@@ -34,13 +34,19 @@ export function CreateTaskModal({ projectId, open, onClose }: CreateTaskModalPro
   const [files, setFiles] = useState<File[]>([])
   const [code, setCode] = useState('')
   const [language, setLanguage] = useState('python')
-  const [errors, setErrors] = useState<{ title?: string; description?: string; general?: string }>({})
+  const [errors, setErrors] = useState<{ title?: string; description?: string; general?: string }>(
+    {}
+  )
 
   const createMutation = useMutation({
     mutationFn: () => {
       return taskService.createTask(
         projectId,
-        { title: title.trim(), description: description.trim() || undefined, upload_method: uploadMethod },
+        {
+          title: title.trim(),
+          description: description.trim() || undefined,
+          upload_method: uploadMethod,
+        },
         files.length > 0 ? files : undefined,
         code || undefined,
         language
@@ -100,9 +106,7 @@ export function CreateTaskModal({ projectId, open, onClose }: CreateTaskModalPro
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {errors.general && (
-            <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">
-              {errors.general}
-            </div>
+            <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{errors.general}</div>
           )}
 
           <div>
@@ -115,9 +119,7 @@ export function CreateTaskModal({ projectId, open, onClose }: CreateTaskModalPro
               disabled={createMutation.isPending}
               placeholder="작업 제목을 입력하세요 (최소 5자)"
             />
-            {errors.title && (
-              <p className="text-sm text-red-500 mt-1">{errors.title}</p>
-            )}
+            {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title}</p>}
           </div>
 
           <div>
@@ -135,12 +137,8 @@ export function CreateTaskModal({ projectId, open, onClose }: CreateTaskModalPro
               maxLength={500}
             />
             <div className="flex justify-between mt-1">
-              {errors.description && (
-                <p className="text-sm text-red-500">{errors.description}</p>
-              )}
-              <p className="text-sm text-gray-500 ml-auto">
-                {description.length} / 500
-              </p>
+              {errors.description && <p className="text-sm text-red-500">{errors.description}</p>}
+              <p className="text-sm text-gray-500 ml-auto">{description.length} / 500</p>
             </div>
           </div>
 
@@ -193,12 +191,8 @@ export function CreateTaskModal({ projectId, open, onClose }: CreateTaskModalPro
           </div>
 
           <div>
-            {uploadMethod === 'file' && (
-              <FileUpload onFilesChange={setFiles} />
-            )}
-            {uploadMethod === 'folder' && (
-              <FolderUpload onFilesChange={setFiles} />
-            )}
+            {uploadMethod === 'file' && <FileUpload onFilesChange={setFiles} />}
+            {uploadMethod === 'folder' && <FolderUpload onFilesChange={setFiles} />}
             {uploadMethod === 'paste' && (
               <PasteCode onCodeChange={setCode} onLanguageChange={setLanguage} />
             )}

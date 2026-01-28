@@ -29,7 +29,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import uuid
-from datetime import datetime
 from typing import Any
 
 from sqlalchemy import select
@@ -37,7 +36,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from src.db.session import get_session_context
-from src.models.code_file import CodeFile
 from src.models.learning_document import LearningDocument
 from src.models.task import Task
 from src.models.uploaded_code import UploadedCode
@@ -63,16 +61,19 @@ class DocumentGenerationError(Exception):
 
 class TaskNotFoundError(DocumentGenerationError):
     """Raised when task is not found."""
+
     pass
 
 
 class NoCodeUploadedError(DocumentGenerationError):
     """Raised when task has no uploaded code."""
+
     pass
 
 
 class DocumentAlreadyExistsError(DocumentGenerationError):
     """Raised when a completed document already exists for the task."""
+
     pass
 
 
@@ -274,9 +275,7 @@ class DocumentGenerationService:
             raise TaskNotFoundError(f"Task not found: {task_id}", task_id)
 
         if task.uploaded_code is None or not task.uploaded_code.code_files:
-            raise NoCodeUploadedError(
-                f"Task has no uploaded code: {task_id}", task_id
-            )
+            raise NoCodeUploadedError(f"Task has no uploaded code: {task_id}", task_id)
 
         return task
 
@@ -284,7 +283,7 @@ class DocumentGenerationService:
         self,
         session: AsyncSession,
         task: Task,
-        celery_task_id: str | None,
+        _celery_task_id: str | None,
         force_regenerate: bool,
     ) -> LearningDocument:
         """
@@ -383,9 +382,7 @@ class DocumentGenerationService:
                     )
                 )
             except FileNotFoundError:
-                logger.warning(
-                    f"File not found: {code_file.storage_path}, skipping"
-                )
+                logger.warning(f"File not found: {code_file.storage_path}, skipping")
                 continue
 
         if not code_parts:
@@ -461,9 +458,7 @@ class DocumentGenerationService:
 
             except error_classes["timeout"] as e:
                 last_error = e
-                logger.warning(
-                    f"Task {task_id}: Timeout (attempt {attempt + 1})"
-                )
+                logger.warning(f"Task {task_id}: Timeout (attempt {attempt + 1})")
                 if attempt < self.max_retries:
                     await self._wait_with_backoff(delay, attempt)
                     delay = min(delay * self.retry_multiplier, self.max_retry_delay)
@@ -529,11 +524,9 @@ class DocumentGenerationService:
                 - error: Error message if failed
                 - has_content: Whether document has content
         """
+
         async def _get_status(session: AsyncSession) -> dict[str, Any]:
-            stmt = (
-                select(LearningDocument)
-                .where(LearningDocument.task_id == task_id)
-            )
+            stmt = select(LearningDocument).where(LearningDocument.task_id == task_id)
             result = await session.execute(stmt)
             document = result.scalar_one_or_none()
 
@@ -581,11 +574,9 @@ class DocumentGenerationService:
         Returns:
             LearningDocument or None if not found
         """
+
         async def _get_document(session: AsyncSession) -> LearningDocument | None:
-            stmt = (
-                select(LearningDocument)
-                .where(LearningDocument.task_id == task_id)
-            )
+            stmt = select(LearningDocument).where(LearningDocument.task_id == task_id)
             result = await session.execute(stmt)
             return result.scalar_one_or_none()
 

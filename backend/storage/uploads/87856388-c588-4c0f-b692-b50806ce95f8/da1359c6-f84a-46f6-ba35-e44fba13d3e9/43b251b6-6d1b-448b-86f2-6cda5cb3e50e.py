@@ -27,25 +27,21 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Cookie, Depends, Request, Response, status
+from fastapi import APIRouter, Cookie, Depends, Response, status
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.api.dependencies import CurrentUser, get_current_user
+from src.api.dependencies import CurrentUser
 from src.api.exceptions import (
-    AlreadyExistsError,
-    InvalidCredentialsError,
     TokenExpiredError,
     TokenInvalidError,
     UnauthorizedError,
-    ValidationError,
 )
 from src.db.session import get_db
 from src.models.user import User
 from src.services.auth.token_service import TokenService
 from src.services.auth.user_service import UserService
 from src.utils.jwt import get_jwt_settings
-
 
 # =============================================================================
 # Pydantic Schemas
@@ -151,7 +147,7 @@ def _get_cookie_settings() -> dict:
     Returns:
         dict: Cookie settings with security flags
     """
-    jwt_settings = get_jwt_settings()
+    get_jwt_settings()
     secure = _is_secure_environment()
 
     return {

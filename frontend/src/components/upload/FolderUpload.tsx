@@ -45,7 +45,9 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
   }
 
   const buildFileTree = (filesList: File[]): FileNode | null => {
-    if (filesList.length === 0) return null
+    if (filesList.length === 0) {
+      return null
+    }
 
     const root: FileNode = {
       name: '',
@@ -55,8 +57,7 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
     }
 
     filesList.forEach((file) => {
-      const path = (file as File & { webkitRelativePath?: string })
-        .webkitRelativePath || file.name
+      const path = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name
       const parts = path.split('/')
 
       let current = root
@@ -93,7 +94,9 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
 
   const handleFolderSelection = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files
-    if (!selectedFiles || selectedFiles.length === 0) return
+    if (!selectedFiles || selectedFiles.length === 0) {
+      return
+    }
 
     const fileArray = Array.from(selectedFiles)
 
@@ -148,8 +151,12 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
   }
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+    if (bytes < 1024) {
+      return `${bytes} B`
+    }
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(2)} KB`
+    }
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
   }
 
@@ -171,10 +178,12 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
       }
 
       node.children.forEach((child, index) => {
-        elements.push(...renderFileTree(child, level + 1).map((el, i) => ({
-          ...el,
-          key: `${el.key}-${index}-${i}`
-        })))
+        elements.push(
+          ...renderFileTree(child, level + 1).map((el, i) => ({
+            ...el,
+            key: `${el.key}-${index}-${i}`,
+          }))
+        )
       })
     } else if (node.file) {
       elements.push(
@@ -184,9 +193,7 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
           style={{ paddingLeft: `${level * 16}px` }}
         >
           <span className="text-sm text-gray-700">{node.name}</span>
-          <span className="text-xs text-gray-500 ml-2">
-            ({formatFileSize(node.file.size)})
-          </span>
+          <span className="text-xs text-gray-500 ml-2">({formatFileSize(node.file.size)})</span>
         </div>
       )
     }
@@ -203,9 +210,7 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
       <div
         className={cn(
           'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
-          files.length > 0
-            ? 'border-gray-300'
-            : 'border-gray-300 hover:border-gray-400',
+          files.length > 0 ? 'border-gray-300' : 'border-gray-300 hover:border-gray-400',
           error && 'border-red-300'
         )}
         onClick={files.length === 0 ? handleClick : undefined}
@@ -215,14 +220,12 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
           type="file"
           className="hidden"
           onChange={handleFolderSelection}
-          {...({ webkitdirectory: '', directory: '' } as any)}
+          {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
           aria-label="폴더 선택"
         />
         <Folder className="mx-auto h-12 w-12 text-gray-400 mb-4" />
         <p className="text-gray-600 mb-2">폴더를 선택하세요</p>
-        <p className="text-sm text-gray-500">
-          폴더 구조가 그대로 유지됩니다
-        </p>
+        <p className="text-sm text-gray-500">폴더 구조가 그대로 유지됩니다</p>
         <p className="text-sm text-gray-500 mt-1">
           지원 형식: .py, .js, .ts, .jsx, .tsx, .html, .css, .java, .cpp, .c, .txt, .md
         </p>
@@ -230,9 +233,7 @@ export function FolderUpload({ onFilesChange }: FolderUploadProps) {
       </div>
 
       {/* Error Message */}
-      {error && (
-        <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{error}</div>
-      )}
+      {error && <div className="p-3 text-sm text-red-800 bg-red-100 rounded-md">{error}</div>}
 
       {/* Filtered Files Warning */}
       {filteredCount > 0 && (

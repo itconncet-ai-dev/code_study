@@ -27,7 +27,6 @@ from src.api.dependencies import CurrentUser
 from src.db.session import get_db
 from src.services.project_service import ProjectService
 
-
 # =============================================================================
 # Pydantic Schemas
 # =============================================================================

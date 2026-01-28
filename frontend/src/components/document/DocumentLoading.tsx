@@ -56,12 +56,8 @@ export function DocumentLoading({
               </svg>
             </div>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            문서 생성 실패
-          </h3>
-          <p className="text-gray-600 mb-4">
-            {error || '문서를 생성하는 중 오류가 발생했습니다.'}
-          </p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">문서 생성 실패</h3>
+          <p className="text-gray-600 mb-4">{error || '문서를 생성하는 중 오류가 발생했습니다.'}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -100,9 +96,7 @@ export function DocumentLoading({
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">진행률</span>
-              <span className="font-semibold text-blue-600">
-                {progress}%
-              </span>
+              <span className="font-semibold text-blue-600">{progress}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
               <div
@@ -121,8 +115,8 @@ export function DocumentLoading({
         {/* Info Message */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-xs text-blue-900">
-            문서 생성은 코드 크기에 따라 1-3분 정도 소요됩니다. 
-            이 페이지를 벗어나도 생성은 계속 진행되며, 완료되면 확인할 수 있습니다.
+            문서 생성은 코드 크기에 따라 1-3분 정도 소요됩니다. 이 페이지를 벗어나도 생성은 계속
+            진행되며, 완료되면 확인할 수 있습니다.
           </p>
         </div>
       </div>

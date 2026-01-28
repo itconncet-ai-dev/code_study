@@ -30,9 +30,10 @@ Reference: data-model.md §RefreshToken entity
 Task: T026 - Implement TokenService (create access/refresh tokens, verify, rotate)
 """
 
+import contextlib
 import hashlib
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -42,17 +43,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.exceptions import TokenExpiredError, TokenInvalidError
 from src.models.refresh_token import RefreshToken
 from src.utils.jwt import (
+    TokenExpiredError as JWTTokenExpiredError,
+)
+from src.utils.jwt import (
+    TokenInvalidError as JWTTokenInvalidError,
+)
+from src.utils.jwt import (
     TokenPayload,
     TokenType,
-    create_access_token as jwt_create_access_token,
-    create_refresh_token as jwt_create_refresh_token,
     decode_token,
     get_jwt_settings,
     verify_token,
 )
 from src.utils.jwt import (
-    TokenExpiredError as JWTTokenExpiredError,
-    TokenInvalidError as JWTTokenInvalidError,
+    create_access_token as jwt_create_access_token,
+)
+from src.utils.jwt import (
+    create_refresh_token as jwt_create_refresh_token,
 )
 
 
@@ -184,7 +191,7 @@ class TokenService:
         token_hash = self._hash_token(token)
 
         # Calculate expiration timestamp
-        expires_at = datetime.now(timezone.utc) + self.settings.refresh_token_lifetime
+        expires_at = datetime.now(UTC) + self.settings.refresh_token_lifetime
 
         # Create database record
         refresh_token_record = RefreshToken(
@@ -284,7 +291,7 @@ class TokenService:
 
         # Revoke the old token
         stored_token.revoked = True
-        stored_token.revoked_at = datetime.now(timezone.utc)
+        stored_token.revoked_at = datetime.now(UTC)
 
         # Create new token pair
         new_access_token = self.create_access_token(user_id)
@@ -310,13 +317,11 @@ class TokenService:
         Example:
             success = await service.revoke_refresh_token(refresh_token)
         """
-        try:
+        # Even if JWT is invalid/expired, we should still try to revoke
+        # in case it's somehow in the database
+        with contextlib.suppress(JWTTokenExpiredError, JWTTokenInvalidError):
             # Decode token to validate format (don't need full verification)
             decode_token(token, verify_signature=True, settings=self.settings)
-        except (JWTTokenExpiredError, JWTTokenInvalidError):
-            # Even if JWT is invalid/expired, we should still try to revoke
-            # in case it's somehow in the database
-            pass
 
         # Look up token in database
         token_hash = self._hash_token(token)
@@ -327,7 +332,7 @@ class TokenService:
 
         # Mark as revoked
         stored_token.revoked = True
-        stored_token.revoked_at = datetime.now(timezone.utc)
+        stored_token.revoked_at = datetime.now(UTC)
         await self.db.commit()
 
         return True
@@ -349,7 +354,7 @@ class TokenService:
             count = await service.revoke_all_user_tokens(user_id)
         """
         user_uuid = UUID(str(user_id)) if isinstance(user_id, str) else user_id
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Update all non-revoked tokens for the user
         stmt = (

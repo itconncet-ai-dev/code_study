@@ -6,9 +6,10 @@ Tests cover async engine creation, session lifecycle, and FastAPI dependency inj
 """
 
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
-from sqlalchemy.pool import AsyncAdaptedQueuePool
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
+
+# All tests in this module require a real PostgreSQL connection
+pytestmark = pytest.mark.Database
 
 
 class TestDatabaseSession:
@@ -100,7 +101,7 @@ class TestDatabaseUrlConstruction:
 
     def test_database_url_from_env(self):
         """Test database URL is constructed from environment variables."""
-        from src.db.session import get_database_url
+        from src.db.config import get_database_url
 
         url = get_database_url()
 

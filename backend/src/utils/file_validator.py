@@ -14,8 +14,6 @@ Task: T064 - Implement file validation utilities
 from __future__ import annotations
 
 from dataclasses import dataclass
-from pathlib import Path
-from typing import BinaryIO
 
 
 @dataclass
@@ -26,12 +24,12 @@ class ValidationResult:
     error_message: str | None = None
 
     @classmethod
-    def success(cls) -> "ValidationResult":
+    def success(cls) -> ValidationResult:
         """Create a successful validation result."""
         return cls(is_valid=True, error_message=None)
 
     @classmethod
-    def failure(cls, message: str) -> "ValidationResult":
+    def failure(cls, message: str) -> ValidationResult:
         """Create a failed validation result with error message."""
         return cls(is_valid=False, error_message=message)
 
@@ -48,20 +46,22 @@ class FileValidator:
     """
 
     # Supported file extensions (FR-015)
-    SUPPORTED_EXTENSIONS: frozenset[str] = frozenset({
-        ".py",    # Python
-        ".js",    # JavaScript
-        ".ts",    # TypeScript
-        ".jsx",   # React JSX
-        ".tsx",   # React TSX
-        ".html",  # HTML
-        ".css",   # CSS
-        ".java",  # Java
-        ".cpp",   # C++
-        ".c",     # C
-        ".txt",   # Text
-        ".md",    # Markdown
-    })
+    SUPPORTED_EXTENSIONS: frozenset[str] = frozenset(
+        {
+            ".py",  # Python
+            ".js",  # JavaScript
+            ".ts",  # TypeScript
+            ".jsx",  # React JSX
+            ".tsx",  # React TSX
+            ".html",  # HTML
+            ".css",  # CSS
+            ".java",  # Java
+            ".cpp",  # C++
+            ".c",  # C
+            ".txt",  # Text
+            ".md",  # Markdown
+        }
+    )
 
     # Maximum file size in bytes (10MB per FR-014)
     MAX_FILE_SIZE_BYTES: int = 10 * 1024 * 1024  # 10MB = 10,485,760 bytes
@@ -108,7 +108,9 @@ class FileValidator:
         return ValidationResult.success()
 
     @classmethod
-    def validate_file_size(cls, size_bytes: int, filename: str = "") -> ValidationResult:
+    def validate_file_size(
+        cls, size_bytes: int, filename: str = ""
+    ) -> ValidationResult:
         """
         Validate that the file size is within the allowed limit.
 
@@ -120,9 +122,7 @@ class FileValidator:
             ValidationResult indicating success or failure with message
         """
         if size_bytes < 0:
-            return ValidationResult.failure(
-                f"Invalid file size: {size_bytes} bytes"
-            )
+            return ValidationResult.failure(f"Invalid file size: {size_bytes} bytes")
 
         if size_bytes > cls.MAX_FILE_SIZE_BYTES:
             size_mb = size_bytes / (1024 * 1024)
@@ -135,9 +135,7 @@ class FileValidator:
         return ValidationResult.success()
 
     @classmethod
-    def validate_total_upload_size(
-        cls, total_size_bytes: int
-    ) -> ValidationResult:
+    def validate_total_upload_size(cls, total_size_bytes: int) -> ValidationResult:
         """
         Validate that the total upload size is within the allowed limit.
 
@@ -224,10 +222,10 @@ class FileValidator:
                 sample.decode(encoding)
                 # Check for high concentration of control characters
                 decoded = sample.decode(encoding)
-                control_chars = sum(1 for c in decoded if ord(c) < 32 and c not in "\n\r\t")
-                if control_chars / len(decoded) > 0.1:
-                    return True
-                return False
+                control_chars = sum(
+                    1 for c in decoded if ord(c) < 32 and c not in "\n\r\t"
+                )
+                return control_chars / len(decoded) > 0.1
             except (UnicodeDecodeError, LookupError):
                 continue
 

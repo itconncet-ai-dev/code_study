@@ -17,11 +17,10 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from backend.src.services.code_analysis.complexity_analyzer import (
+from backend.src.services.code_analysis.complexity_analyzer import (  # noqa: E402
     ComplexityAnalyzer,
     ComplexityResult,
 )
-
 
 # =============================================================================
 # Test Code: BEGINNER LEVEL
@@ -588,9 +587,15 @@ def print_separator(title: str) -> None:
 
 def print_metrics_table(result: ComplexityResult) -> None:
     """Print detailed metrics breakdown table."""
-    print("\n┌─────────────────────────┬───────────┬────────────┬────────┬───────────────┐")
-    print("│ Metric                  │ Raw Value │ Score(100) │ Weight │ Weighted      │")
-    print("├─────────────────────────┼───────────┼────────────┼────────┼───────────────┤")
+    print(
+        "\n┌─────────────────────────┬───────────┬────────────┬────────┬───────────────┐"
+    )
+    print(
+        "│ Metric                  │ Raw Value │ Score(100) │ Weight │ Weighted      │"
+    )
+    print(
+        "├─────────────────────────┼───────────┼────────────┼────────┼───────────────┤"
+    )
 
     for score in result.metric_scores:
         weighted = score.normalized_score * score.weight
@@ -599,9 +604,15 @@ def print_metrics_table(result: ComplexityResult) -> None:
             f"{score.normalized_score:>10.1f} │ {score.weight:>6.2f} │ {weighted:>13.2f} │"
         )
 
-    print("├─────────────────────────┴───────────┴────────────┴────────┼───────────────┤")
-    print(f"│ TOTAL SCORE                                              │ {result.total_score:>13.2f} │")
-    print("└──────────────────────────────────────────────────────────┴───────────────┘")
+    print(
+        "├─────────────────────────┴───────────┴────────────┴────────┼───────────────┤"
+    )
+    print(
+        f"│ TOTAL SCORE                                              │ {result.total_score:>13.2f} │"
+    )
+    print(
+        "└──────────────────────────────────────────────────────────┴───────────────┘"
+    )
     print(f"\nComplexity Level: {result.level.value.upper()}")
 
 
@@ -609,9 +620,15 @@ def print_comparison_table(results: dict[str, ComplexityResult]) -> None:
     """Print comparison table of all results."""
     print_separator("COMPARISON TABLE")
 
-    print("\n┌────────────────┬─────────┬───────────┬─────────┬─────────┬─────────┬───────────┬──────────────┐")
-    print("│ Level          │ Lines   │ Functions │ Classes │ Methods │ Nesting │ Score     │ Result       │")
-    print("├────────────────┼─────────┼───────────┼─────────┼─────────┼─────────┼───────────┼──────────────┤")
+    print(
+        "\n┌────────────────┬─────────┬───────────┬─────────┬─────────┬─────────┬───────────┬──────────────┐"
+    )
+    print(
+        "│ Level          │ Lines   │ Functions │ Classes │ Methods │ Nesting │ Score     │ Result       │"
+    )
+    print(
+        "├────────────────┼─────────┼───────────┼─────────┼─────────┼─────────┼───────────┼──────────────┤"
+    )
 
     for name, result in results.items():
         m = result.metrics
@@ -622,7 +639,9 @@ def print_comparison_table(results: dict[str, ComplexityResult]) -> None:
             f"{result.total_score:>9.2f} │ {level_result:<12} │"
         )
 
-    print("└────────────────┴─────────┴───────────┴─────────┴─────────┴─────────┴───────────┴──────────────┘")
+    print(
+        "└────────────────┴─────────┴───────────┴─────────┴─────────┴─────────┴───────────┴──────────────┘"
+    )
 
 
 def run_analysis():
@@ -647,7 +666,7 @@ def run_analysis():
         result = ComplexityAnalyzer.analyze(code)
         results[name] = result
 
-        print(f"\nCode Statistics:")
+        print("\nCode Statistics:")
         print(f"  - Total Lines: {result.metrics.total_lines}")
         print(f"  - Code Lines: {result.metrics.code_lines}")
         print(f"  - Functions: {result.metrics.function_count}")
@@ -657,7 +676,7 @@ def run_analysis():
         print(f"  - Imports: {result.metrics.import_count}")
 
         if result.analysis_notes:
-            print(f"\nAnalysis Notes:")
+            print("\nAnalysis Notes:")
             for note in result.analysis_notes:
                 print(f"  - {note}")
 

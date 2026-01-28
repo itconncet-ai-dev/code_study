@@ -12,7 +12,7 @@ Task: T024 - Create RefreshToken SQLAlchemy model
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, func
@@ -97,7 +97,7 @@ class RefreshToken(Base, UUIDPrimaryKeyMixin):
     )
 
     # Relationship to User
-    user: Mapped["User"] = relationship(
+    user: Mapped[User] = relationship(
         "User",
         back_populates="refresh_tokens",
     )
@@ -152,9 +152,8 @@ class RefreshToken(Base, UUIDPrimaryKeyMixin):
         Returns:
             True if current time is past expires_at, False otherwise.
         """
-        from datetime import timezone
 
-        return datetime.now(timezone.utc) > self.expires_at
+        return datetime.now(UTC) > self.expires_at
 
     def is_valid(self) -> bool:
         """

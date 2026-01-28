@@ -27,7 +27,6 @@ from typing import Literal
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -82,7 +81,9 @@ class AppSettings(BaseSettings):
         """Parse CORS origins string into a list."""
         if not self.cors_origins:
             return []
-        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+        return [
+            origin.strip() for origin in self.cors_origins.split(",") if origin.strip()
+        ]
 
     @property
     def is_development(self) -> bool:
@@ -128,8 +129,8 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 def run_migrations():
     """Run Alembic migrations on startup to ensure schema is up to date."""
     try:
+        from alembic import command  # noqa: I001
         from alembic.config import Config
-        from alembic import command
 
         alembic_cfg = Config("alembic.ini")
         command.upgrade(alembic_cfg, "head")
@@ -139,7 +140,7 @@ def run_migrations():
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     """
     Application lifespan manager for startup and shutdown events.
 
@@ -190,7 +191,14 @@ def create_application() -> FastAPI:
     cors_origins = settings.cors_origins_list
     if settings.is_development and not cors_origins:
         # Default development origins if none configured
-        cors_origins = ["http://localhost:5173", "http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004"]
+        cors_origins = [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "http://localhost:3002",
+            "http://localhost:3003",
+            "http://localhost:3004",
+        ]
 
     app.add_middleware(
         CORSMiddleware,

@@ -18,8 +18,7 @@ import {
  */
 export default function Register() {
   const navigate = useNavigate()
-  const { register, isAuthenticated, isRegisterLoading, registerError, error } =
-    useAuth()
+  const { register, isAuthenticated, isRegisterLoading, registerError, error } = useAuth()
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
@@ -45,9 +44,7 @@ export default function Register() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>
-            Enter your email and password to create your account
-          </CardDescription>
+          <CardDescription>Enter your email and password to create your account</CardDescription>
         </CardHeader>
         <CardContent>
           <RegisterForm

@@ -35,13 +35,41 @@ export function DocumentViewer({
 
   // Chapter navigation data
   const chapters = [
-    { number: 1 as ChapterNumber, title: document.content.chapter1.title, completed: completedChapters.includes(1) },
-    { number: 2 as ChapterNumber, title: document.content.chapter2.title, completed: completedChapters.includes(2) },
-    { number: 3 as ChapterNumber, title: document.content.chapter3.title, completed: completedChapters.includes(3) },
-    { number: 4 as ChapterNumber, title: document.content.chapter4.title, completed: completedChapters.includes(4) },
-    { number: 5 as ChapterNumber, title: document.content.chapter5.title, completed: completedChapters.includes(5) },
-    { number: 6 as ChapterNumber, title: document.content.chapter6.title, completed: completedChapters.includes(6) },
-    { number: 7 as ChapterNumber, title: document.content.chapter7.title, completed: completedChapters.includes(7) },
+    {
+      number: 1 as ChapterNumber,
+      title: document.content.chapter1.title,
+      completed: completedChapters.includes(1),
+    },
+    {
+      number: 2 as ChapterNumber,
+      title: document.content.chapter2.title,
+      completed: completedChapters.includes(2),
+    },
+    {
+      number: 3 as ChapterNumber,
+      title: document.content.chapter3.title,
+      completed: completedChapters.includes(3),
+    },
+    {
+      number: 4 as ChapterNumber,
+      title: document.content.chapter4.title,
+      completed: completedChapters.includes(4),
+    },
+    {
+      number: 5 as ChapterNumber,
+      title: document.content.chapter5.title,
+      completed: completedChapters.includes(5),
+    },
+    {
+      number: 6 as ChapterNumber,
+      title: document.content.chapter6.title,
+      completed: completedChapters.includes(6),
+    },
+    {
+      number: 7 as ChapterNumber,
+      title: document.content.chapter7.title,
+      completed: completedChapters.includes(7),
+    },
   ]
 
   /**
@@ -68,19 +96,17 @@ export function DocumentViewer({
    * Handle code panel scroll for synchronization
    * (Future enhancement: can implement synchronized scrolling logic here)
    */
-  const handleCodeScroll = useCallback((scrollTop: number) => {
+  const handleCodeScroll = useCallback((_scrollTop: number) => {
     // Placeholder for synchronized scrolling logic
     // Could calculate which explanation corresponds to visible code lines
-    console.log('Code scrolled to:', scrollTop)
   }, [])
 
   /**
    * Handle explanation panel scroll for synchronization
    * (Future enhancement: can implement synchronized scrolling logic here)
    */
-  const handleExplanationScroll = useCallback((scrollTop: number) => {
+  const handleExplanationScroll = useCallback((_scrollTop: number) => {
     // Placeholder for synchronized scrolling logic
-    console.log('Explanation scrolled to:', scrollTop)
   }, [])
 
   /**
@@ -113,10 +139,11 @@ export function DocumentViewer({
             </h1>
             <div className="space-y-4">
               {document.content.chapter5.steps.map((step) => (
-                <div key={step.step_number} className="border-l-4 border-indigo-500 bg-white p-4 rounded-r-lg shadow-sm">
-                  <div className="font-semibold text-indigo-900 mb-2">
-                    Step {step.step_number}
-                  </div>
+                <div
+                  key={step.step_number}
+                  className="border-l-4 border-indigo-500 bg-white p-4 rounded-r-lg shadow-sm"
+                >
+                  <div className="font-semibold text-indigo-900 mb-2">Step {step.step_number}</div>
                   <p className="text-gray-800">{step.description}</p>
                 </div>
               ))}
@@ -132,13 +159,17 @@ export function DocumentViewer({
             <div className="space-y-4">
               {document.content.chapter6.concepts.map((concept, index) => (
                 <div key={index} className="bg-white border border-gray-200 p-4 rounded-lg">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                    {concept.name}
-                  </h3>
+                  <h3 className="font-semibold text-lg text-gray-900 mb-2">{concept.name}</h3>
                   <div className="space-y-2 text-sm">
-                    <p><strong>무엇인가요?</strong> {concept.what_it_is}</p>
-                    <p><strong>왜 사용하나요?</strong> {concept.why_used}</p>
-                    <p><strong>어디에 적용되나요?</strong> {concept.where_applied}</p>
+                    <p>
+                      <strong>무엇인가요?</strong> {concept.what_it_is}
+                    </p>
+                    <p>
+                      <strong>왜 사용하나요?</strong> {concept.why_used}
+                    </p>
+                    <p>
+                      <strong>어디에 적용되나요?</strong> {concept.where_applied}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -169,8 +200,12 @@ export function DocumentViewer({
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p><strong>왜 문제인가요?</strong> {mistake.why}</p>
-                    <p><strong>어떻게 고치나요?</strong> {mistake.fix}</p>
+                    <p>
+                      <strong>왜 문제인가요?</strong> {mistake.why}
+                    </p>
+                    <p>
+                      <strong>어떻게 고치나요?</strong> {mistake.fix}
+                    </p>
                   </div>
                 </div>
               ))}

@@ -14,16 +14,22 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import (
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from src.models.learning_document import LearningDocument
     from src.models.project import Project
     from src.models.uploaded_code import UploadedCode
-    from src.models.learning_document import LearningDocument
 
 
 class Task(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
@@ -67,7 +73,9 @@ class Task(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
 
     # Unique constraint for task_number within project
     __table_args__ = (
-        UniqueConstraint("project_id", "task_number", name="unique_task_number_per_project"),
+        UniqueConstraint(
+            "project_id", "task_number", name="unique_task_number_per_project"
+        ),
     )
 
     # Foreign key to Project (parent)
@@ -103,14 +111,14 @@ class Task(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     # Relationships
-    project: Mapped["Project"] = relationship(
+    project: Mapped[Project] = relationship(
         "Project",
         back_populates="tasks",
         lazy="selectin",
     )
 
     # One-to-one relationship to UploadedCode
-    uploaded_code: Mapped["UploadedCode | None"] = relationship(
+    uploaded_code: Mapped[UploadedCode | None] = relationship(
         "UploadedCode",
         back_populates="task",
         uselist=False,
@@ -119,7 +127,7 @@ class Task(Base, UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin):
     )
 
     # One-to-one relationship to LearningDocument
-    learning_document: Mapped["LearningDocument | None"] = relationship(
+    learning_document: Mapped[LearningDocument | None] = relationship(
         "LearningDocument",
         back_populates="task",
         uselist=False,

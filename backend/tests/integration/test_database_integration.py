@@ -12,15 +12,12 @@ import uuid
 from datetime import datetime
 
 import pytest
-from sqlalchemy import select, func
-from sqlalchemy.ext.asyncio import AsyncSession
-
 
 # Simple test model for integration testing
-from sqlalchemy import Column, String, DateTime
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.base import Base, UUIDPrimaryKeyMixin, TimestampMixin
+from src.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 
 class TestUser(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -173,7 +170,7 @@ class TestCRUDOperations:
         async with async_session_factory() as session:
             stmt = select(TestUser).where(TestUser.id == user_id)
             result = await session.execute(stmt)
-            user = result.scalar_one_or_none()
+            result.scalar_one_or_none()
 
             # The record should not exist since we rolled back
             # (Note: In test isolation, this might not work if the record was never committed)
@@ -185,8 +182,9 @@ class TestConnectionPooling:
     @pytest.mark.asyncio
     async def test_multiple_concurrent_sessions(self):
         """Test that multiple sessions can be created concurrently."""
-        from src.db.session import async_session_factory
         import asyncio
+
+        from src.db.session import async_session_factory
 
         async def create_session_and_query(user_num: int) -> int:
             async with async_session_factory() as session:
@@ -204,10 +202,7 @@ class TestConnectionPooling:
         """Test that session is properly closed after context manager."""
         from src.db.session import get_session_context
 
-        session_ref = None
-
         async with get_session_context() as session:
-            session_ref = session
             # Session should be usable here
             result = await session.execute(select(func.literal(1)))
             assert result.scalar() == 1
