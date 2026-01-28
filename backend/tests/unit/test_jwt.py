@@ -13,7 +13,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
-from backend.src.utils.jwt import (
+from src.utils.jwt import (
     JWTSettings,
     TokenInvalidError,
     TokenPayload,

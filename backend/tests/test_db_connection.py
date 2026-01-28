@@ -70,29 +70,21 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temporary table
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 CREATE TEMPORARY TABLE users_temp (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     email VARCHAR(100)
                 )
-            """
-                )
-            )
+            """))
 
             # Insert data
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 INSERT INTO users_temp (name, email)
                 VALUES ('Alice', 'alice@example.com'),
                        ('Bob', 'bob@example.com'),
                        ('Charlie', 'charlie@example.com')
-            """
-                )
-            )
+            """))
 
             # Query data
             result = await session.execute(text("SELECT COUNT(*) FROM users_temp"))
@@ -120,18 +112,14 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 CREATE TEMPORARY TABLE products_temp (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     price INT,
                     status VARCHAR(50) DEFAULT 'active'
                 )
-            """
-                )
-            )
+            """))
 
             # Insert data
             await session.execute(
@@ -162,17 +150,13 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 CREATE TEMPORARY TABLE items_temp (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     quantity INT
                 )
-            """
-                )
-            )
+            """))
 
             # Insert data
             await session.execute(
@@ -201,31 +185,23 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 CREATE TEMPORARY TABLE sales_temp (
                     id SERIAL PRIMARY KEY,
                     amount INT,
                     category VARCHAR(50)
                 )
-            """
-                )
-            )
+            """))
 
             # Insert data
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 INSERT INTO sales_temp (amount, category)
                 VALUES (100, 'electronics'),
                        (200, 'electronics'),
                        (150, 'books'),
                        (75, 'books'),
                        (300, 'furniture')
-            """
-                )
-            )
+            """))
 
             # Test COUNT
             result = await session.execute(text("SELECT COUNT(*) FROM sales_temp"))
@@ -260,39 +236,27 @@ class TestSQLAlchemyConnection:
 
         async with get_session_context() as session:
             # Create temp table
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 CREATE TEMPORARY TABLE orders_temp (
                     id SERIAL PRIMARY KEY,
                     customer VARCHAR(100),
                     amount INT
                 )
-            """
-                )
-            )
+            """))
 
             # Insert data
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 INSERT INTO orders_temp (customer, amount)
                 VALUES ('Alice', 100), ('Alice', 150), ('Bob', 200), ('Bob', 50)
-            """
-                )
-            )
+            """))
 
             # Test GROUP BY
-            result = await session.execute(
-                text(
-                    """
+            result = await session.execute(text("""
                 SELECT customer, SUM(amount) as total
                 FROM orders_temp
                 GROUP BY customer
                 ORDER BY customer
-            """
-                )
-            )
+            """))
             rows = result.fetchall()
 
             assert len(rows) == 2
@@ -313,16 +277,12 @@ class TestSQLAlchemyConnection:
 
         # Create and populate table in first session
         async with async_session_factory() as session:
-            await session.execute(
-                text(
-                    """
+            await session.execute(text("""
                 CREATE TEMPORARY TABLE rollback_test (
                     id SERIAL PRIMARY KEY,
                     value VARCHAR(100)
                 )
-            """
-                )
-            )
+            """))
             await session.commit()
 
         # Insert data but rollback

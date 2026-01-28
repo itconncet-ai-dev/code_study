@@ -44,17 +44,13 @@ class TestBasicDatabaseOperations:
         Create a temporary table and insert data.
         """
         # Create a temporary table
-        await db_session.execute(
-            text(
-                """
+        await db_session.execute(text("""
             CREATE TEMPORARY TABLE test_data (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100),
                 value INT
             )
-        """
-            )
-        )
+        """))
 
         # Insert data
         await db_session.execute(
@@ -85,17 +81,13 @@ class TestBasicDatabaseOperations:
         Update data in temporary table.
         """
         # Create temporary table
-        await db_session.execute(
-            text(
-                """
+        await db_session.execute(text("""
             CREATE TEMPORARY TABLE test_update (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100),
                 status VARCHAR(50)
             )
-        """
-            )
-        )
+        """))
 
         # Insert initial data
         await db_session.execute(
@@ -125,16 +117,12 @@ class TestBasicDatabaseOperations:
         Delete data from temporary table.
         """
         # Create temporary table
-        await db_session.execute(
-            text(
-                """
+        await db_session.execute(text("""
             CREATE TEMPORARY TABLE test_delete (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(100)
             )
-        """
-            )
-        )
+        """))
 
         # Insert multiple records
         await db_session.execute(
@@ -172,16 +160,12 @@ class TestBasicDatabaseOperations:
         Verify that transaction commit works properly.
         """
         # Create table
-        await db_session.execute(
-            text(
-                """
+        await db_session.execute(text("""
             CREATE TEMPORARY TABLE test_transaction (
                 id SERIAL PRIMARY KEY,
                 value INT
             )
-        """
-            )
-        )
+        """))
 
         # Insert and commit
         await db_session.execute(
@@ -225,17 +209,13 @@ class TestBasicDatabaseOperations:
         Test SQL aggregate functions.
         """
         # Create test table
-        await db_session.execute(
-            text(
-                """
+        await db_session.execute(text("""
             CREATE TEMPORARY TABLE test_agg (
                 id SERIAL PRIMARY KEY,
                 category VARCHAR(50),
                 amount INT
             )
-        """
-            )
-        )
+        """))
 
         # Insert data
         await db_session.execute(
