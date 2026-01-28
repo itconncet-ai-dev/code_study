@@ -1,0 +1,172 @@
+# =================================
+# AI Code Learning Platform - .gitignore
+# =================================
+
+# =================================
+# Environment & Configuration
+# =================================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# =================================
+# Python (Backend)
+# =================================
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+/lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Ruff
+.ruff_cache/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# =================================
+# Node.js (Frontend)
+# =================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.yarn-integrity
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# =================================
+# Storage & Uploads
+# =================================
+storage/uploads/
+!storage/.gitkeep
+
+# =================================
+# IDE & Editor
+# =================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# =================================
+# OS Generated
+# =================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =================================
+# Docker
+# =================================
+# Docker volumes (if mounted locally)
+docker-data/
+postgres-data/
+redis-data/
+
+# =================================
+# Logs
+# =================================
+logs/
+*.log
+npm-debug.log*
+
+# =================================
+# Temp Files
+# =================================
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# =================================
+# Testing
+# =================================
+coverage/
+.nyc_output/
+test-results/
+
+# =================================
+# Secrets & Credentials
+# =================================
+*.pem
+*.key
+secrets/
+credentials.json
+nul
