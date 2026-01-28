@@ -23,6 +23,10 @@ from src.models.user import User
 # Test database URL (in-memory SQLite for fast testing)
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
+# Mark all tests in this module as Database-dependent
+# (SQLite cannot render PostgreSQL-specific types like JSONB used in other models)
+pytestmark = pytest.mark.Database
+
 
 @pytest.fixture
 def engine():
