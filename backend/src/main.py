@@ -129,7 +129,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 def run_migrations():
     """Run Alembic migrations on startup to ensure schema is up to date."""
     try:
-        from alembic import command
+        from alembic import command  # noqa: I001
         from alembic.config import Config
 
         alembic_cfg = Config("alembic.ini")
